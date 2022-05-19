@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid mt-5 bg-info" style="min-height: 100vh;">
+    <div class="row" style="min-height: 100%;">
+<!-- SideBar -->
+        <div class="col-2 pt-3 text-light bg-success bg-opacity-75" style="min-height: 100vh;">
+                <div class="container-fluid position-fixed" style="width:200px;">
+                  <ul class="nav flex-column" style="width: 180px;">
+                    <li class="nav-item text-center my-2 btn btn-sm rounded-2"><a class="nav-link active text-black link-light fs-6" aria-current="page" href="#">Link 1</a></li>
+                    <li class="nav-item text-center my-2 btn btn-sm rounded-2"><a class="nav-link text-black link-light fs-6" href="#">Link 2</a></li>
+                    <li class="nav-item text-center my-2 btn btn-sm rounded-2"><a class="nav-link text-black link-light fs-6" href="#">Link 3</a></li>
+                  </ul>
+                </div>
+            </div>
+<!-- End SideBar -->
+
+<!-- Main Content -->
+        <div class="col pt-3 bg-light">
+          Content
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Voluptas aliquam culpa et recusandae veniam saepe provident maxime sequi praesentium sunt? Dolor ipsa dolore rerum ducimus sint nobis id similique doloremque.
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Libero magnam tempora laudantium omnis odit doloribus adipisci enim dolorem illo, ea minus optio delectus deserunt soluta aut aperiam provident expedita praesentium.
+        </div>
+<!-- End  Main Content -->
+    </div>
+</div>
+
+{% endblock %}
