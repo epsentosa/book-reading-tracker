@@ -3,3 +3,6 @@ venv
 
 #Bootstrap inside static
 static
+
+#Vscode
+.vscode
