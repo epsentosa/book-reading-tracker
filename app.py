@@ -5,15 +5,15 @@ app._static_folder = "static"
 
 @app.route('/')
 @app.route('/home')
-def home():
+def home_page():
     return render_template("home.html")
 
 @app.route('/register')
-def register():
+def register_page():
     return render_template("register.html") 
 
 @app.route('/login')
-def login():
+def login_page():
     return render_template("login.html") 
 
 if __name__ == "__main__":

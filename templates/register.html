@@ -2,53 +2,54 @@
 
 {% block content %}
 
-<section class="mt-4">
-  <div class="mask d-flex align-items-center h-100">
-    <div class="container h-100">
-      <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-12 col-md-9 col-lg-7 col-xl-6">
-          <div class="card mt-5" style="border-radius: 15px;">
-            <div class="card-body p-4">
-              <h2 class="text-uppercase text-center mb-4">Create account</h2>
+<body class="bg-success bg-opacity-75">
+  <section class="mt-4"> 
+    <div class="mask d-flex align-items-center h-100">
+      <div class="container h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-12 col-md-9 col-lg-7 col-xl-6">
+            <div class="card mt-5" style="border-radius: 15px;">
+              <div class="card-body p-4">
+                <h2 class="text-uppercase text-center mb-4">Create account</h2>
 
-              <form>
+                <form>
 
-                <div class="form-outline mb-2">
-                  <input type="text" id="form3Example1cg" class="form-control form-control-md" />
-                  <label class="form-label" for="form3Example1cg">Your Name</label>
-                </div>
+                  <div class="form-outline mb-2">
+                    <input type="text" id="form3Example1cg" class="form-control form-control-md" />
+                    <label class="form-label" for="form3Example1cg">Your Name</label>
+                  </div>
 
-                <div class="form-outline mb-2">
-                  <input type="email" id="form3Example3cg" class="form-control form-control-md" />
-                  <label class="form-label" for="form3Example3cg">Your Email</label>
-                </div>
+                  <div class="form-outline mb-2">
+                    <input type="email" id="form3Example3cg" class="form-control form-control-md" />
+                    <label class="form-label" for="form3Example3cg">Your Email</label>
+                  </div>
 
-                <div class="form-outline mb-2">
-                  <input type="password" id="form3Example4cg" class="form-control form-control-md" />
-                  <label class="form-label" for="form3Example4cg">Password</label>
-                </div>
+                  <div class="form-outline mb-2">
+                    <input type="password" id="form3Example4cg" class="form-control form-control-md" />
+                    <label class="form-label" for="form3Example4cg">Password</label>
+                  </div>
 
-                <div class="form-outline mb-2">
-                  <input type="password" id="form3Example4cdg" class="form-control form-control-md" />
-                  <label class="form-label" for="form3Example4cdg">Repeat your password</label>
-                </div>
+                  <div class="form-outline mb-2">
+                    <input type="password" id="form3Example4cdg" class="form-control form-control-md" />
+                    <label class="form-label" for="form3Example4cdg">Repeat your password</label>
+                  </div>
 
-                <div class="d-flex justify-content-center">
-                  <button type="button"
-                    class="btn btn-outline-warning btn-block btn-md text-body">Register</button>
-                </div>
+                  <div class="d-flex justify-content-center">
+                    <button type="button"
+                      class="btn btn-warning btn-block btn-md fw-bold">Register</button>
+                  </div>
 
-                <p class="text-center text-muted mt-3 mb-0">Have already an account? <a href="#!"
-                    class="fw-bold text-body"><u>Login here</u></a></p>
+                  <p class="text-center text-muted mt-3 mb-0">Have already an account? <a href="{{ url_for('login_page') }}" class="fw-bold text-body"><u>Login here</u></a></p>
 
-              </form>
+                </form>
 
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</body>
 
 {% endblock %}
