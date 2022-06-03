@@ -12,28 +12,39 @@
               <div class="card-body p-4">
                 <h2 class="text-uppercase text-center mb-4">Login account</h2>
 
-                <form>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                      {% for category,error in messages %}
+                        {% if category == 'success' %}
+                          <div class="alert alert-success" role="alert">{{ error }}</div>
+                        {% else %}
+                          <div class="alert alert-danger" role="alert">{{ error }}</div>
+                        {% endif %}
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                {% endwith %}
+
+                <form method="POST"> 
+
+                  {{ form.hidden_tag() }}
                     <!-- Email input -->
-                    <div class="form-outline mb-3">
-                      <input type="email" id="form2Example1" class="form-control" />
-                      <label class="form-label" for="form2Example1">Email address</label>
+                    <div class="form-outline mb-4">
+                      {{ form.email(class="form-control",placeholder="Email Address") }}
                     </div>
-                  
                     <!-- Password input -->
-                    <div class="form-outline mb-3">
-                      <input type="password" id="form2Example2" class="form-control" />
-                      <label class="form-label" for="form2Example2">Password</label>
+                    <div class="form-outline mb-4">
+                      {{ form.password(class="form-control",placeholder="Password") }}
                     </div>
-                  
                     <!-- Submit button -->
                     <div class="d-flex justify-content-center mb-4">
-                        <button type="button" class="btn btn-warning btn-block btn-md fw-bold">Sign in</button>
+                      {{ form.submit(class="btn btn-warning btn-block btn-md fw-bold",placeholder="Login") }}
                     </div>
-                  
                     <!-- Register buttons -->
                     <div class="text-center">
                         <p class="text-center text-muted mt-3 mb-0">Not a member? <a href="{{ url_for('register_page') }}" class="fw-bold text-body"><u>Register</u></a></p>
                     </div>
+
                 </form>
 
               </div>
