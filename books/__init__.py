@@ -1,98 +1,29 @@
-from unicodedata import category
-from flask import Flask, redirect,render_template, url_for, request, flash, session
+from flask import Flask
 from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
-from books.forms import RegistrationForm,LoginForm
+import yaml
 
-app = Flask(__name__)
-app._static_folder = "static"
-bcrypt = Bcrypt(app)
+bcrypt = Bcrypt()
+mysql = MySQL()
 
-app.config['MYSQL_HOST'] = '0.0.0.0'
-app.config['MYSQL_USER'] = 'eps'
-app.config['MYSQL_PASSWORD'] = 'brew'
-app.config['MYSQL_DB'] = 'track_books'
-app.config['SECRET_KEY'] = 'topsecretkey'
+from books.routes import site
 
-mysql = MySQL(app)
+def create_app():
+    app = Flask(__name__)
 
-@app.route('/')
-@app.route('/home')
-def home_page():
-    msg = 'Welcome'
-    name = ''
-    is_auth = False
-    if "user" in session:
-        is_auth = True
-        msg = f"Succesfully Login for user {session['user']}"
-        name = session['user']
+    config = yaml.safe_load(open('books/config.yaml'))
+    mysql_conf = config['mysql']
+    secret_key = config['secret_key']
 
-    return render_template("home.html",msg=msg,auth=is_auth,name=name)
-
-@app.route('/register',methods = ['POST','GET'])
-def register_page():
-    if "user" in session:
-        return redirect(url_for('home_page'))
-
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        name = form.name.data
-        email = form.email.data
-        password = form.password.data
-        psswd_hash = bcrypt.generate_password_hash(password)
-        with mysql.connection.cursor() as cursor:
-            email_check = "SELECT email FROM members WHERE email = %s;"
-            insert_query = "INSERT INTO members (full_name,email,password) VALUES (%s,%s,%s);"
-            cursor.execute(email_check,(email,))
-            is_registered = cursor.fetchone()
-            if is_registered:
-                flash("Email already registered.")
-                return render_template("register.html",form=form)
-            else:
-                cursor.execute(insert_query,(name,email,psswd_hash))
-                mysql.connection.commit()
-
-        flash("Registered Success, please Login.",category='success')
-        return redirect(url_for('login_page'))
+    app.config['MYSQL_HOST'] = mysql_conf['host']
+    app.config['MYSQL_USER'] = mysql_conf['user']
+    app.config['MYSQL_PASSWORD'] = mysql_conf['password']
+    app.config['MYSQL_DB'] = mysql_conf['db']
+    app.config['SECRET_KEY'] = secret_key
     
-    if form.errors: 
-        for error in form.errors.values():
-            flash(error[0])
+    mysql.init_app(app)
+    bcrypt.init_app(app)
 
-    return render_template("register.html",form=form)
+    app.register_blueprint(site)
 
-@app.route('/login',methods = ['POST','GET'])
-def login_page():
-    if "user" in session:
-        return redirect(url_for('home_page'))
-
-    form = LoginForm()
-    if request.method == "POST":
-        email = form.email.data
-        password = form.password.data
-        with mysql.connection.cursor() as cursor:
-            email_check = "SELECT email FROM members WHERE email = %s;"
-            password_check = "SELECT password FROM members WHERE email = %s;"
-            name = "SELECT full_name FROM members WHERE email = %s;"
-            cursor.execute(email_check,(email,))
-            is_email = cursor.fetchone()
-            if is_email:
-                cursor.execute(password_check,(email,))
-                password_check = cursor.fetchone()[0]
-                is_password = bcrypt.check_password_hash(password_check,password)
-                if is_password:
-                    cursor.execute(name,(email,))
-                    name = cursor.fetchone()[0]
-                    session['user'] = name
-                    return redirect(url_for('home_page'))
-                flash("Wrong Password, try again")
-
-            else:
-                flash("Email Not Found, please register")
-                
-    return render_template("login.html",form=form)
-
-@app.route('/logout')
-def logout():
-    session.pop('user')
-    return redirect(url_for('home_page'))
+    return app
