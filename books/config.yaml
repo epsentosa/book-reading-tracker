@@ -1,0 +1,7 @@
+mysql:
+  host : 0.0.0.0
+  user : eps
+  password : brew
+  db : track_books
+
+secret_key : topsecretkey
