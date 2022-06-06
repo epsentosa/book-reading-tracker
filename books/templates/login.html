@@ -1,59 +1,69 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
 
-<body class="bg-success bg-opacity-75">
-  <section class="mt-4"> 
-    <div class="mask d-flex align-items-center h-100">
-      <div class="container h-100">
-        <div class="row d-flex justify-content-center align-items-center h-100">
-          <div class="col-12 col-md-9 col-lg-7 col-xl-6">
-            <div class="card mt-5" style="border-radius: 15px;">
-              <div class="card-body p-4">
-                <h2 class="text-uppercase text-center mb-4">Login account</h2>
+<div class="container-fluid mt-5">
+    <div class="row align-items-center">
+      <!-- Welcome Panel -->
+      <div class="col-md-7 my-2">
+        <p class="text-md-center fs-1 fw-bolder">
+          NEVER LOSE YOUR NOTE ANYMORE
+        </p>
+        <p class="text-md-center fs-1 fw-bolder">
+          Always tracking your note in spesific page
+        </p>
+        <p class="text-center">
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio maiores rerum provident aliquid alias sapiente quod asperiores doloremque impedit voluptas quaerat, nam facilis adipisci saepe. Assumenda ea nesciunt labore animi?
+        </p>
+      </div>
+      <!-- End Welcome Panel -->
 
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                  {% if messages %}
-                      {% for category,error in messages %}
-                        {% if category == 'success' %}
-                          <div class="alert alert-success" role="alert">{{ error }}</div>
-                        {% else %}
-                          <div class="alert alert-danger" role="alert">{{ error }}</div>
-                        {% endif %}
-                      {% endfor %}
-                    </ul>
-                  {% endif %}
-                {% endwith %}
+      <!-- Login Panel -->
+      <div class="col-md-5 my-2">
+        <div class="card mt-3" style="border-radius: 15px;">
+            <div class="card-body p-4">
+              <h2 class="text-uppercase text-center mb-4">Login account</h2>
 
-                <form method="POST"> 
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category,error in messages %}
+                      {% if category == 'success' %}
+                        <div class="alert alert-success" role="alert">{{ error }}</div>
+                      {% else %}
+                        <div class="alert alert-danger" role="alert">{{ error }}</div>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              {% endwith %}
 
-                  {{ form.hidden_tag() }}
-                    <!-- Email input -->
-                    <div class="form-outline mb-4">
-                      {{ form.email(class="form-control",placeholder="Email Address") }}
-                    </div>
-                    <!-- Password input -->
-                    <div class="form-outline mb-4">
-                      {{ form.password(class="form-control",placeholder="Password") }}
-                    </div>
-                    <!-- Submit button -->
-                    <div class="d-flex justify-content-center mb-4">
-                      {{ form.submit(class="btn btn-warning btn-block btn-md fw-bold",placeholder="Login") }}
-                    </div>
-                    <!-- Register buttons -->
-                    <div class="text-center">
-                        <p class="text-center text-muted mt-3 mb-0">Not a member? <a href="{{ url_for('site.register_page') }}" class="fw-bold text-body"><u>Register</u></a></p>
-                    </div>
+              <form method="POST"> 
+                {{ form.hidden_tag() }}
+                  <!-- Email input -->
+                  <div class="form-outline mb-4">
+                    {{ form.email(class="form-control",placeholder="Email Address") }}
+                  </div>
+                  <!-- Password input -->
+                  <div class="form-outline mb-4">
+                    {{ form.password(class="form-control",placeholder="Password") }}
+                  </div>
+                  <!-- Submit button -->
+                  <div class="d-flex justify-content-center mb-4">
+                    {{ form.submit(class="btn btn-warning btn-block btn-md fw-bold",placeholder="Login") }}
+                  </div>
+                  <!-- Register buttons -->
+                  <div class="text-center">
+                      <p class="text-center text-muted mt-3 mb-0">Not a member? <a href="{{ url_for('site.register_page') }}" class="fw-bold text-body"><u>Register</u></a></p>
+                  </div>
+              </form>
 
-                </form>
-
-              </div>
             </div>
           </div>
-        </div>
       </div>
+      <!-- End Login Panel -->
     </div>
-  </section>
-</body>
+</div>
 
 {% endblock %}
