@@ -23,7 +23,9 @@ def home_page():
         msg = f"Succesfully Login for user {session['user']}"
         name = session['user']
 
-    return render_template("home.html",msg=msg,auth=is_auth,name=name)
+        return render_template("home.html",msg=msg,auth=is_auth,name=name)
+
+    return redirect(url_for('site.login_page'))
 
 @site.route('/register',methods = ['POST','GET'])
 def register_page():
