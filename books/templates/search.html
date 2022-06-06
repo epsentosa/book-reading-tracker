@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block maincontent %}
+  <h1>{{ result[0] }}</h1>
+  <div class="row my-3">
+    <div class="col-lg-6">
+      <div class="container-sm">
+        <form method="POST" class="d-flex" role="search">
+          {{ form.hidden_tag() }}
+          {{ form.search(class="form-control me-2",placeholder="Search Book Tittle") }}
+          {{ form.submit(class="btn btn-outline-success",placeholder="Search")}}
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <table class="table table-success table-hover table-bordered border-primary">
+    <thead>
+      <tr class="text-center">
+        <th scope="col">Tittle</th>
+        <th scope="col" style="width: 90px;">Total Pages</th>
+        <th scope="col" style="width: 80px;">#</th>
+        <th scope="col" style="width:100px;">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+{% endblock %}

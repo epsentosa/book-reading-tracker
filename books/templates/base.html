@@ -12,46 +12,70 @@
 <body class="d-flex flex-column min-vh-100 bg-success bg-opacity-75">
   <!-- Top Navbar -->
   <nav class="navbar navbar-expand-lg bg-warning fixed-top container-fluid shadow border-bottom border-dark border-1 border-opacity-75">
-      <div class="container-fluid">
-        <a class="navbar-brand">Book Tracking Dashboard</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active text-black link-info" aria-current="page" href="{{ url_for('site.home_page') }}">Home</a>
-            </li>
-          </ul>
-          {% if auth %}
+    <div class="container-fluid">
+      <a class="navbar-brand">Book Tracking Dashboard</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active text-black link-info" aria-current="page" href="{{ url_for('site.home_page') }}">Home</a>
+          </li>
+        </ul>
+        {% if session.get('user') %}
 
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link text-black">Hi, {{ name }}</a>
-            </li>
-            <li class="nav-item"><a class="nav-link">|</a></li>
-            <li class="nav-item">
-              <a class="nav-link text-black link-secondary" href="{{ url_for('site.logout') }}">Logout</a>
-            </li>
-          </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link text-black">Hi, {{ session.get('user') }}</a>
+          </li>
+          <li class="nav-item"><a class="nav-link">|</a></li>
+          <li class="nav-item">
+            <a class="nav-link text-black link-secondary" href="{{ url_for('site.logout') }}">Logout</a>
+          </li>
+        </ul>
 
-          {% else %}
+        {% else %}
 
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link text-black link-secondary" href="{{ url_for('site.register_page') }}">Register</a>
-            </li>
-          </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link text-black link-secondary" href="{{ url_for('site.register_page') }}">Register</a>
+          </li>
+        </ul>
 
-          {% endif %}
-        </div>
+        {% endif %}
       </div>
-    </nav>   
+    </div>
+  </nav>   
   <!-- End Top Navbar -->
 
+  {% if session.get('user') %}
+    <!-- SideBar -->
+    <div class="container-fluid mt-5 bg-info">
+      <div class="row">
+          <div class="col-2 pt-3 text-light bg-success bg-opacity-75" style="min-height: 87vh;">
+            <div class="container-fluid" style="width:200px;">
+              <ul class="nav flex-column" style="width: 180px;">
+                <li class="nav-item text-center my-2 btn btn-sm rounded-2"><a class="nav-link active text-black link-light fs-6" aria-current="page" href="{{ url_for('site.search') }}">Link 1</a></li>
+                <li class="nav-item text-center my-2 btn btn-sm rounded-2"><a class="nav-link text-black link-light fs-6" href="#">Link 2</a></li>
+                <li class="nav-item text-center my-2 btn btn-sm rounded-2"><a class="nav-link text-black link-light fs-6" href="#">Link 3</a></li>
+              </ul>
+            </div>
+          </div>
+    <!-- End SideBar -->
 
   <!-- Block Content -->
-  {% block content %}{% endblock %}
+        <div class="col pt-3 bg-light">
+          {% block maincontent %}{% endblock %}
+        </div>
+      </div>
+    </div>
+
+  {% else %}
+
+    {% block content %}{% endblock %}
+
+  {% endif %}
   <!-- End Block Content -->
 
 

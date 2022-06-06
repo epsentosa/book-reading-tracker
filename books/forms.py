@@ -20,3 +20,7 @@ class LoginForm(FlaskForm):
     password = PasswordField(validators=[DataRequired()])
     remember = BooleanField(validators= [DataRequired()])
     submit = SubmitField('Login')
+
+class SearchForm(FlaskForm):
+    search = StringField(validators=[DataRequired()])
+    submit = SubmitField('Search')

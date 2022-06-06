@@ -9,21 +9,18 @@ from books import bcrypt
 from books import mysql
 from books.forms import RegistrationForm
 from books.forms import LoginForm
+from books.forms import SearchForm
 
 site = Blueprint('site',__name__,static_folder="static")
 
 @site.route('/')
-@site.route('/home')
+@site.route('/home',methods = ['POST','GET'])
 def home_page():
     msg = 'Welcome'
-    name = ''
-    is_auth = False
     if "user" in session:
-        is_auth = True
         msg = f"Succesfully Login for user {session['user']}"
-        name = session['user']
 
-        return render_template("home.html",msg=msg,auth=is_auth,name=name)
+        return render_template("home.html",msg=msg)
 
     return redirect(url_for('site.login_page'))
 
@@ -94,3 +91,20 @@ def login_page():
 def logout():
     session.pop('user',None)
     return redirect(url_for('site.home_page'))
+
+@site.route('/search',methods = ['POST','GET'])
+def search():
+    if "user" not in session:
+        return redirect(url_for('site.home_page'))
+
+    form = SearchForm()
+    if request.method == "POST":
+        title = form.search.data
+        with mysql.connection.cursor() as cursor:
+            search_query = "SELECT tittle,num_pages FROM books WHERE tittle LIKE '%%%s%%'" % title
+            cursor.execute(search_query)
+            result = cursor.fetchall()
+        
+        return render_template('search.html',form=form,result=result)
+
+    return render_template('search.html',form=form)
