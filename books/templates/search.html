@@ -1,8 +1,11 @@
 {% extends "base.html" %}
+{% set active = 'search' %}
+{% set page_default = 1 %}
 
 {% block title %}Dashboard{% endblock %}
 
 {% block maincontent %}
+
   <div class="row my-3">
     <div class="col-lg-6">
       <div class="container-sm">
@@ -25,6 +28,8 @@
     </thead>
     <tbody>
       {% if result %}
+        Found {{ total_query }} Result
+        {{ start_page, total_pages }}
         {% for tittle,pages in result %}
           <tr>
             <td>{{ tittle }}</td>
@@ -36,4 +41,23 @@
     </tbody>
   </table>
 
+  <nav aria-label="Search Books Pagination">
+    <ul class="pagination justify-content-center">
+      {% if result %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('site.search',i = page_default - 1) }}" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        {% for page in range(1,total_pages+1) %}
+          <li class="page-item"><a class="page-link" href="{{ url_for('site.search', i = page) }}">{{ page }}</a></li>
+        {% endfor %}
+        <li class="page-item">
+          <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
 {% endblock %}

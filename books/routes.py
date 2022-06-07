@@ -10,6 +10,7 @@ from books import mysql
 from books.forms import RegistrationForm
 from books.forms import LoginForm
 from books.forms import SearchForm
+from math import ceil
 
 site = Blueprint('site',__name__,static_folder="static")
 
@@ -93,23 +94,34 @@ def logout():
     return redirect(url_for('site.home_page'))
 
 @site.route('/search',methods = ['POST','GET'])
-def search():
+@site.route('/search/page/<int:i>',methods = ['POST','GET'])
+def search(i = 1):
     if "user" not in session:
         return redirect(url_for('site.home_page'))
 
     form = SearchForm()
+    start_page = (i * 10) - 10
+    result_per_page = 10
     if request.method == "POST":
         title = form.search.data
         # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
-        # best solution i found so far
-        if "'" or "%" in title:
+        if title and ("'" or "%" in title):
             title = title.replace("\'","\\'")
             title = title.replace("%","\%")
+        # best solution i found so far
         with mysql.connection.cursor() as cursor:
             search_query = "SELECT tittle,num_pages FROM books WHERE tittle LIKE '%%%s%%'" % title
             cursor.execute(search_query)
+            total_query_result = cursor.rowcount
+            total_pages = ceil(total_query_result/result_per_page)
+
+            # search_query_per_page = (search_query + 'LIMIT %s,%s')
+            # cursor.execute(search_query_per_page,(start_page,result_per_page,))
+            cursor.execute(search_query + 'LIMIT %s,%s' % (start_page,result_per_page))
             result = cursor.fetchall()
         
-        return render_template('search.html',form=form,result=result)
+        return render_template('search.html',form=form,result=result,total_query=total_query_result,start_page=start_page,total_pages=total_pages)
 
     return render_template('search.html',form=form)
+
+    # TODO --> fix link pagination (file to fix in routes and search.html)
