@@ -100,6 +100,11 @@ def search():
     form = SearchForm()
     if request.method == "POST":
         title = form.search.data
+        # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
+        # best solution i found so far
+        if "'" or "%" in title:
+            title = title.replace("\'","\\'")
+            title = title.replace("%","\%")
         with mysql.connection.cursor() as cursor:
             search_query = "SELECT tittle,num_pages FROM books WHERE tittle LIKE '%%%s%%'" % title
             cursor.execute(search_query)

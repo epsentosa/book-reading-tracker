@@ -3,7 +3,6 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block maincontent %}
-  <h1>{{ result[0] }}</h1>
   <div class="row my-3">
     <div class="col-lg-6">
       <div class="container-sm">
@@ -18,20 +17,22 @@
 
   <table class="table table-success table-hover table-bordered border-primary">
     <thead>
-      <tr class="text-center">
+      <tr class="text-center align-middle">
         <th scope="col">Tittle</th>
         <th scope="col" style="width: 90px;">Total Pages</th>
-        <th scope="col" style="width: 80px;">#</th>
-        <th scope="col" style="width:100px;">Action</th>
+        <th scope="col" style="width:120px;">Action</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
+      {% if result %}
+        {% for tittle,pages in result %}
+          <tr>
+            <td>{{ tittle }}</td>
+            <td>{{ pages }}</td>
+            <td></td>
+          </tr>
+        {% endfor %}
+      {% endif %}
     </tbody>
   </table>
 
