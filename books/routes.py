@@ -17,7 +17,6 @@ site = Blueprint('site',__name__,static_folder="static")
 @site.route('/')
 @site.route('/home',methods = ['POST','GET'])
 def home_page():
-    msg = 'Welcome'
     if "user" in session:
         msg = f"Succesfully Login for user {session['user']}"
 
@@ -103,25 +102,42 @@ def search(i = 1):
     start_page = (i * 10) - 10
     result_per_page = 10
     if request.method == "POST":
+
+        def create_result(title,start_page,result_per_page):
+            with mysql.connection.cursor() as cursor:
+                search_query = "SELECT tittle,num_pages FROM books WHERE tittle LIKE '%%%s%%'" % title
+                cursor.execute(search_query + "LIMIT %s,%s" % (start_page,result_per_page))
+                result = cursor.fetchall()
+                return result
+
         title = form.search.data
-        # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
-        if title and ("'" or "%" in title):
+        if title:
+            # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
             title = title.replace("\'","\\'")
             title = title.replace("%","\%")
-        # best solution i found so far
-        with mysql.connection.cursor() as cursor:
-            search_query = "SELECT tittle,num_pages FROM books WHERE tittle LIKE '%%%s%%'" % title
-            cursor.execute(search_query)
-            total_query_result = cursor.rowcount
-            total_pages = ceil(total_query_result/result_per_page)
-
-            # search_query_per_page = (search_query + 'LIMIT %s,%s')
-            # cursor.execute(search_query_per_page,(start_page,result_per_page,))
-            cursor.execute(search_query + 'LIMIT %s,%s' % (start_page,result_per_page))
-            result = cursor.fetchall()
+            # best solution i found so far
+            with mysql.connection.cursor() as cursor:
+                search_query = "SELECT tittle,num_pages FROM books WHERE tittle LIKE '%%%s%%'" % title
+                cursor.execute(search_query)
+                total_query_result = cursor.rowcount
+                total_pages = ceil(total_query_result/result_per_page)
         
-        return render_template('search.html',form=form,result=result,total_query=total_query_result,start_page=start_page,total_pages=total_pages)
+            session["search"] = title
+            session["total_query"] = total_query_result
+            session["total_pages"] = total_pages
 
+        else:
+            title = session["search"]
+            total_query_result = session["total_query"]
+            total_pages = session["total_pages"]
+            
+        result = create_result(title,start_page,result_per_page)
+
+        return render_template('search.html',form=form,result=result,total_query=total_query_result,total_pages=total_pages,start_page=start_page,current_page=i)
+
+    session.pop('search',None)
+    session.pop('total_query',None)
+    session.pop('total_pages',None)
     return render_template('search.html',form=form)
 
-    # TODO --> fix link pagination (file to fix in routes and search.html)
+    # TODO --> fix page overflow
