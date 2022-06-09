@@ -28,7 +28,7 @@
     </thead>
     <tbody>
       {% if result %}
-        Found {{ total_query }} Result
+      Found {{ total_query }} Result, in {{ total_pages }} Pages
         {% for tittle,pages in result %}
           <tr>
             <td>{{ tittle }}</td>
@@ -51,7 +51,7 @@
             </button>
           </form>
         </li>
-        {% for page in range(1,total_pages+1) %}
+        {% for page in range(page_active if total_pages - page_active + 1 >= 3 else total_pages - 3 + 1,[page_active+3,total_pages+1]|min) %}
           <li class="page-item">
             <form method="POST" class="inline" action="{{ url_for('site.search', i = page) }}">
               <input type="hidden" name="page">

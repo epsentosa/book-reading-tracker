@@ -112,6 +112,7 @@ def search(i = 1):
 
         title = form.search.data
         if title:
+            i, start_page = 1, 0
             # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
             title = title.replace("\'","\\'")
             title = title.replace("%","\%")
@@ -140,4 +141,4 @@ def search(i = 1):
     session.pop('total_pages',None)
     return render_template('search.html',form=form)
 
-    # TODO --> fix page overflow
+    # TODO --> fix page if result shown only less than 3
