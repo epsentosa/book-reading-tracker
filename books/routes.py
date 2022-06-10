@@ -122,6 +122,8 @@ def search(i = 1):
                 cursor.execute(search_query)
                 total_query_result = cursor.rowcount
                 total_pages = ceil(total_query_result/result_per_page)
+                if total_query_result == 0:
+                    flash("No Data Found")
         
             session["search"] = title
             session["total_query"] = total_query_result
@@ -141,4 +143,4 @@ def search(i = 1):
     session.pop('total_pages',None)
     return render_template('search.html',form=form)
 
-    # TODO --> fix page if result shown only less than 3
+    # TODO --> figure out use modal for showing detail button
