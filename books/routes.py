@@ -105,7 +105,10 @@ def search(i = 1):
 
         def create_result(title,start_page,result_per_page):
             with mysql.connection.cursor() as cursor:
-                search_query = "SELECT tittle,num_pages FROM books WHERE tittle LIKE '%%%s%%'" % title
+                search_query = """ SELECT b.book_id,b.tittle,b.num_pages,b.publication_date,b.isbn,p.name,a.name FROM books b 
+                                    LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
+                                    LEFT JOIN authors a ON b.author_id = a.author_id 
+                                    WHERE b.tittle LIKE '%%%s%%'""" % title
                 cursor.execute(search_query + "LIMIT %s,%s" % (start_page,result_per_page))
                 result = cursor.fetchall()
                 return result
@@ -118,7 +121,7 @@ def search(i = 1):
             title = title.replace("%","\%")
             # best solution i found so far
             with mysql.connection.cursor() as cursor:
-                search_query = "SELECT tittle,num_pages FROM books WHERE tittle LIKE '%%%s%%'" % title
+                search_query = "SELECT * FROM books WHERE tittle LIKE '%%%s%%'" % title
                 cursor.execute(search_query)
                 total_query_result = cursor.rowcount
                 total_pages = ceil(total_query_result/result_per_page)
@@ -143,4 +146,4 @@ def search(i = 1):
     session.pop('total_pages',None)
     return render_template('search.html',form=form)
 
-    # TODO --> figure out use modal for showing detail button
+    # TODO --> Define Add Book if no result

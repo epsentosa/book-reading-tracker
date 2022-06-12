@@ -29,13 +29,13 @@
     <tbody class="table-group-divider">
       {% if result %}
       Found {{ total_query }} Result, in {{ total_pages }} Pages
-        {% for tittle,pages in result %}
+        {% for book in result %}
           <tr>
-            <td>{{ tittle }}</td>
-            <td>{{ pages }}</td>
+            <td>{{ book[1] }}</td>
+            <td>{{ book[2] }}</td>
             <td class="text-center">
                 <button type="button" class="btn btn-success btn-sm">Add</button>
-                <button type="button" class="btn btn-secondary btn-sm" id="modalDetail">Detail</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#detail{{ book[0] }}">Detail</button>
             </td>
           </tr>
         {% endfor %}
@@ -80,5 +80,46 @@
       {% endif %}
     </ul>
   </nav>
+  
+  {% for book_id,tittle,num_pages,pub_date,isbn,publisher,author in result %}
+    <!-- Modal -->
+    <div class="modal fade" id="detail{{ book_id }}" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title fw-bold" id="exampleModalLabel">{{ tittle }}</h5>
+          </div>
+          <div class="modal-body">
+              <table class="table table-borderless">
+                  <tbody>
+                      <tr>
+                          <td class="fw-bold" style="width:120px;">Total Pages</td>
+                          <td>: {{ num_pages }}</td>
+                      </tr>
+                      <tr>
+                          <td class="fw-bold">Published Date</td>
+                          <td>: {{ pub_date }}</td>
+                      </tr>
+                      <tr>
+                          <td class="fw-bold">ISBN</td>
+                          <td>: {{ isbn }}</td>
+                      </tr>
+                      <tr>
+                          <td class="fw-bold">Publisher</td>
+                          <td>: {{ publisher }}</td>
+                      </tr>
+                      <tr>
+                          <td class="fw-bold">Auhor</td>
+                          <td>: {{ author }}</td>
+                      </tr>
+              </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+   {% endfor %}
 
 {% endblock %}
