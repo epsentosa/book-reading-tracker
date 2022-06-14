@@ -19,8 +19,8 @@
   </div>
 
   <table class="table table-success table-hover table-bordered border-primary">
-    <thead>
-      <tr class="text-center align-middle table-warning">
+      <thead>
+      <tr class="text-center align-middle table-warning border border-2 border-dark border-opacity-75">
         <th scope="col">Tittle</th>
         <th scope="col" style="width: 90px;">Total Pages</th>
         <th scope="col" style="width:120px;">Action</th>
@@ -45,7 +45,8 @@
 
   {% with message = get_flashed_messages() %}
     {% if message %}
-        <div class="alert alert-danger text-center fw-bold" role="alert">{{ message[0] }}</div>
+        <div class="alert alert-danger text-center fw-bold py-2" role="alert">{{ message[0] }}</div>
+        <div class="text-center fw-bold" role="alert">Want to add by yourself? <button type="button" class="btn btn-sm btn-success fst-italic" data-bs-toggle="modal" data-bs-target="#add">click here</button></div>
     {% endif %}
   {% endwith %}
 
@@ -81,13 +82,13 @@
     </ul>
   </nav>
   
+  <!-- Modal for View Detail-->
   {% for book_id,tittle,num_pages,pub_date,isbn,publisher,author in result %}
-    <!-- Modal -->
     <div class="modal fade" id="detail{{ book_id }}" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-              <h4 class="modal-title fw-bold" id="exampleModalLabel">{{ tittle }}</h5>
+              <h4 class="modal-title fw-bold" id="exampleModalLabel">{{ tittle }}</h4>
           </div>
           <div class="modal-body">
               <table class="table table-borderless">
@@ -121,5 +122,49 @@
       </div>
     </div>
    {% endfor %}
+
+    <!-- Modal for adding new book tittle -->
+    <div class="modal fade" id="add" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title fw-bold">Insert detail book here</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form method="POST">
+              {{ form_book.hidden_tag() }}
+              <div class="mb-3 input-group">
+                <span class="input-group-text" style="width:125px;">Tittle</span>
+                {{ form_book.tittle(class="form-control") }}
+              </div>
+              <div class="mb-3 input-group">
+                <span class="input-group-text" style="width:125px;">Total Pages</span>
+                {{ form_book.num_pages(class="form-control") }}
+              </div>
+              <div class="mb-3 input-group">
+                <span class="input-group-text" style="width:125px;">Publication Date</span>
+                {{ form_book.publication_date(class="form-control") }}
+              </div>
+              <div class="mb-3 input-group">
+                <span class="input-group-text" style="width:125px;">ISBN</span>
+                {{ form_book.isbn(class="form-control",placeholder="optional") }}
+              </div>
+              <div class="mb-3 input-group">
+                <span class="input-group-text" style="width:125px;">Publisher</span>
+                {{ form_book.publisher(class="form-control") }}
+              </div>
+              <div class="mb-3 input-group">
+                <span class="input-group-text" style="width:125px;">Author</span>
+                {{ form_book.author(class="form-control") }}
+              </div>
+          </div>
+          <div class="modal-footer">
+            {{ form_book.submit(class="btn btn-success",placeholder="Add Book")}}
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
 {% endblock %}

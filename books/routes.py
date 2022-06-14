@@ -10,6 +10,7 @@ from books import mysql
 from books.forms import RegistrationForm
 from books.forms import LoginForm
 from books.forms import SearchForm
+from books.forms import AddBook
 from math import ceil
 
 site = Blueprint('site',__name__,static_folder="static")
@@ -98,7 +99,8 @@ def search(i = 1):
     if "user" not in session:
         return redirect(url_for('site.home_page'))
 
-    form = SearchForm()
+    search_form = SearchForm()
+    add_book = AddBook()
     start_page = (i * 10) - 10
     result_per_page = 10
     if request.method == "POST":
@@ -113,7 +115,7 @@ def search(i = 1):
                 result = cursor.fetchall()
                 return result
 
-        title = form.search.data
+        title = search_form.search.data
         if title:
             i, start_page = 1, 0
             # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
@@ -139,11 +141,11 @@ def search(i = 1):
             
         result = create_result(title,start_page,result_per_page)
 
-        return render_template('search.html',form=form,result=result,total_query=total_query_result,total_pages=total_pages,start_page=start_page,current_page=i)
+        return render_template('search.html',form=search_form,form_book=add_book,result=result,total_query=total_query_result,total_pages=total_pages,start_page=start_page,current_page=i)
 
     session.pop('search',None)
     session.pop('total_query',None)
     session.pop('total_pages',None)
-    return render_template('search.html',form=form)
+    return render_template('search.html',form=search_form,form_book=add_book)
 
-    # TODO --> Define Add Book if no result
+    # TODO --> Create Route for Adding Book into database
