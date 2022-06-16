@@ -18,6 +18,7 @@
     </div>
   </div>
 
+  {% if result %}
   <table class="table table-success table-hover table-bordered border-primary">
       <thead>
       <tr class="text-center align-middle table-warning border border-2 border-dark border-opacity-75">
@@ -27,7 +28,6 @@
       </tr>
     </thead>
     <tbody class="table-group-divider">
-      {% if result %}
       Found {{ total_query }} Result, in {{ total_pages }} Pages
         {% for book in result %}
           <tr>
@@ -39,13 +39,19 @@
             </td>
           </tr>
         {% endfor %}
-      {% endif %}
     </tbody>
   </table>
+  {% endif %}
 
-  {% with message = get_flashed_messages() %}
+  {% with message = get_flashed_messages(with_categories=true) %}
     {% if message %}
-        <div class="alert alert-danger text-center fw-bold py-2" role="alert">{{ message[0] }}</div>
+        {% for category,msg in message %}
+          {% if category == 'success' %}
+            <div class="alert alert-success text-center fw-bold py-2" role="alert">{{ msg }}</div>
+          {% else %}
+            <div class="alert alert-danger text-center fw-bold py-2" role="alert">{{ msg }}</div>
+          {% endif %}
+        {% endfor %}
         <div class="text-center fw-bold" role="alert">Want to add by yourself? <button type="button" class="btn btn-sm btn-success fst-italic" data-bs-toggle="modal" data-bs-target="#add">click here</button></div>
     {% endif %}
   {% endwith %}
@@ -132,7 +138,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <form method="POST">
+            <form method="POST" action="{{ url_for('site.add_book') }}">
               {{ form_book.hidden_tag() }}
               <div class="mb-3 input-group">
                 <span class="input-group-text" style="width:125px;">Tittle</span>

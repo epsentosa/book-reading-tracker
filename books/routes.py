@@ -69,7 +69,7 @@ def login_page():
         with mysql.connection.cursor() as cursor:
             email_check = "SELECT email FROM members WHERE email = %s;"
             password_check = "SELECT password FROM members WHERE email = %s;"
-            name = "SELECT full_name FROM members WHERE email = %s;"
+            name = "SELECT member_id,full_name FROM members WHERE email = %s;"
             cursor.execute(email_check,(email,))
             is_email = cursor.fetchone()
             if is_email:
@@ -78,8 +78,11 @@ def login_page():
                 is_password = bcrypt.check_password_hash(password_check,password)
                 if is_password:
                     cursor.execute(name,(email,))
-                    name = cursor.fetchone()[0]
+                    user = cursor.fetchone()
+                    user_id = user[0]
+                    name = user[1]
                     session['user'] = name
+                    session['id'] = user_id
                     return redirect(url_for('site.home_page'))
                 flash("Wrong Password, try again")
 
@@ -148,4 +151,61 @@ def search(i = 1):
     session.pop('total_pages',None)
     return render_template('search.html',form=search_form,form_book=add_book)
 
-    # TODO --> Create Route for Adding Book into database
+@site.route('/add',methods = ["POST"])
+def add_book():
+
+    def query_check_or_add(name,table):
+        if table == "publishers":
+            query_check = "SELECT publisher_id FROM publishers WHERE name = %s;"
+            query_add = "INSERT INTO publishers (name) VALUES (%s);"
+        else:
+            query_check = "SELECT author_id FROM authors WHERE name = %s;"
+            query_add = "INSERT INTO authors (name) VALUES (%s);"
+
+        cursor.execute(query_check,(name,))
+        id = cursor.fetchone()
+        if id:
+            return id
+
+        cursor.execute(query_add,(name,))
+        mysql.connection.commit()
+        cursor.execute(query_check,(name,))
+        id = cursor.fetchone()
+        return id
+
+    member_id = session['id']
+    form = AddBook()
+    if form.validate_on_submit():
+        tittle = form.tittle.data
+        num_pages = form.num_pages.data
+        publication_date = form.publication_date.data
+        isbn = form.isbn.data
+        publisher = form.publisher.data
+        author = form.author.data
+
+        with mysql.connection.cursor() as cursor:
+            tittle_check = "SELECT tittle FROM books WHERE tittle = %s;"
+            insert_query = """INSERT INTO books (tittle,num_pages,publication_date,isbn,publisher_id,author_id,added_by) 
+                            VALUES (%s,%s,%s,%s,%s,%s,%s);"""
+            cursor.execute(tittle_check,(tittle,))
+            is_registered = cursor.fetchone()
+            if is_registered:
+                flash("Book already in Database.")
+                return redirect(url_for('site.search'))
+
+            publisher_id = query_check_or_add(publisher,'publishers')
+            author_id = query_check_or_add(author,'authors')
+            cursor.execute(insert_query,(tittle,num_pages,publication_date,isbn,publisher_id,author_id,member_id))
+            mysql.connection.commit()
+
+        flash("Book Registration Successful",category='success')
+        # return redirect(url_for('site.collections'))
+        return redirect(url_for('site.search'))
+    
+    if form.errors: 
+        for error in form.errors.values():
+            flash(error[0])
+
+    return redirect(url_for('site.search'))
+    
+    # TODO --> in view detail, show also user who add the book
