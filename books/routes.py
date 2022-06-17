@@ -110,9 +110,10 @@ def search(i = 1):
 
         def create_result(title,start_page,result_per_page):
             with mysql.connection.cursor() as cursor:
-                search_query = """ SELECT b.book_id,b.tittle,b.num_pages,b.publication_date,b.isbn,p.name,a.name FROM books b 
-                                    LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
+                search_query = """ SELECT b.book_id,b.tittle,b.num_pages,b.publication_date,b.isbn,p.name,a.name,m.full_name
+                                    FROM books b LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
                                     LEFT JOIN authors a ON b.author_id = a.author_id 
+                                    LEFT JOIN members m ON b.added_by = m.member_id
                                     WHERE b.tittle LIKE '%%%s%%'""" % title
                 cursor.execute(search_query + "LIMIT %s,%s" % (start_page,result_per_page))
                 result = cursor.fetchall()
@@ -144,7 +145,8 @@ def search(i = 1):
             
         result = create_result(title,start_page,result_per_page)
 
-        return render_template('search.html',form=search_form,form_book=add_book,result=result,total_query=total_query_result,total_pages=total_pages,start_page=start_page,current_page=i)
+        return render_template('search.html',form=search_form,form_book=add_book,result=result, \
+                total_query=total_query_result,total_pages=total_pages,start_page=start_page,current_page=i)
 
     session.pop('search',None)
     session.pop('total_query',None)
@@ -208,4 +210,4 @@ def add_book():
 
     return redirect(url_for('site.search'))
     
-    # TODO --> in view detail, show also user who add the book
+    # TODO --> Lets create the collections page!!

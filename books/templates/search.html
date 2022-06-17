@@ -89,7 +89,7 @@
   </nav>
   
   <!-- Modal for View Detail-->
-  {% for book_id,tittle,num_pages,pub_date,isbn,publisher,author in result %}
+  {% for book_id,tittle,num_pages,pub_date,isbn,publisher,author,added_by in result %}
     <div class="modal fade" id="detail{{ book_id }}" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -121,6 +121,9 @@
                       </tr>
               </table>
           </div>
+          {% if added_by != "Eko Putra Sentosa" %}
+              <div class="container text-start fw-semibold fst-italic text-secondary">Added by user: {{ added_by }}</div>
+          {% endif %}
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
