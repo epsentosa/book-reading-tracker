@@ -210,4 +210,30 @@ def add_book():
 
     return redirect(url_for('site.search'))
     
-    # TODO --> Lets create the collections page!!
+@site.route('/collections',methods = ['GET','POST'])
+@site.route('/collections/page/<int:i>',methods = ['GET','POST'])
+def collection(i = 1):
+    if "user" not in session:
+        return redirect(url_for('site.home_page'))
+
+    search_form = SearchForm()
+    start_page = (i * 10) - 10
+    result_per_page = 10
+
+    def create_result(user_id,start_page,result_per_page):
+        with mysql.connection.cursor() as cursor:
+            search_query = """ SELECT b.tittle,b.num_pages FROM books b
+                            INNER JOIN collections c ON c.book_id = b.book_id
+                            INNER JOIN members m ON c.member_id = m.member_id
+                            where c.member_id = %s """ % user_id
+            cursor.execute(search_query + "LIMIT %s,%s" % (start_page,result_per_page))
+            result = cursor.fetchall()
+            return result
+
+    user_id = session["id"]
+    result = create_result(user_id,start_page,result_per_page)
+
+    return render_template('collection.html',form=search_form,result=result, \
+            start_page=start_page,current_page=i)
+
+    #TODO make add button works

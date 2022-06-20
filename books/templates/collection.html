@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% set active = 'collection' %}
+{% set page_active = current_page %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block maincontent %}
+
+  {% if result %}
+  <p class="fw-bold">You Have ... Collections</p>
+  {% else %}
+      <div class="row my-3">
+        <div class="col-lg-6">
+          <div class="container-sm">
+            <form method="POST" class="d-flex" role="search">
+              {{ form.hidden_tag() }}
+              {{ form.search(class="form-control me-2",placeholder="Search Book Tittle") }}
+              {{ form.submit(class="btn btn-outline-success",placeholder="Search")}}
+            </form>
+          </div>
+        </div>
+      </div>
+  {% endif %}
+
+  {% if result %}
+  <table class="table table-success table-hover table-bordered border-primary">
+      <thead>
+      <tr class="text-center align-middle table-warning border border-2 border-dark border-opacity-75">
+        <th scope="col">Tittle</th>
+        <th scope="col" style="width: 90px;">Total Pages</th>
+        <th scope="col" style="width:120px;">Action</th>
+      </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        {% for book in result %}
+          <tr>
+            <td>{{ book[0] }}</td>
+            <td>{{ book[1] }}</td>
+            <td class="text-center">
+                <button type="button" class="btn btn-success btn-sm">Add</button>
+                <button type="button" class="btn btn-secondary btn-sm">Detail</button>
+            </td>
+          </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% with message = get_flashed_messages(with_categories=true) %}
+    {% if message %}
+        {% for category,msg in message %}
+          {% if category == 'success' %}
+            <div class="alert alert-success text-center fw-bold py-2" role="alert">{{ msg }}</div>
+          {% else %}
+            <div class="alert alert-danger text-center fw-bold py-2" role="alert">{{ msg }}</div>
+          {% endif %}
+        {% endfor %}
+        <div class="text-center fw-bold" role="alert">Want to add by yourself? 
+          <button type="button" class="btn btn-sm btn-success fst-italic" data-bs-toggle="modal" 
+          data-bs-target="#add">click here</button></div>
+    {% endif %}
+  {% endwith %}
+
+{% endblock %}
