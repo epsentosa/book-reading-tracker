@@ -153,7 +153,7 @@ def search(i = 1):
     session.pop('total_pages',None)
     return render_template('search.html',form=search_form,form_book=add_book)
 
-@site.route('/add',methods = ["POST"])
+@site.route('/add_book',methods = ["POST"])
 def add_book():
 
     def query_check_or_add(name,table):
@@ -209,6 +209,27 @@ def add_book():
             flash(error[0])
 
     return redirect(url_for('site.search'))
+
+@site.route('/add_collection/<int:book_id>',methods = ['POST'])
+def add_collection(book_id):
+
+    member_id = session['id']
+    if request.method == "POST":
+
+        with mysql.connection.cursor() as cursor:
+            book_id_check = "SELECT book_id FROM collections WHERE member_id = %s and book_id = %s;"
+            insert_query = "INSERT INTO collections (member_id,book_id) VALUES (%s,%s);"
+            cursor.execute(book_id_check,(member_id,book_id))
+            is_registered = cursor.fetchone()
+            if is_registered:
+                flash("Book already in Your Collections.")
+                return redirect(url_for('site.collection'))
+
+            cursor.execute(insert_query,(member_id,book_id))
+            mysql.connection.commit()
+
+        flash("Book Registration Successful",category='success')
+        return redirect(url_for('site.collection'))
     
 @site.route('/collections',methods = ['GET','POST'])
 @site.route('/collections/page/<int:i>',methods = ['GET','POST'])
@@ -236,4 +257,4 @@ def collection(i = 1):
     return render_template('collection.html',form=search_form,result=result, \
             start_page=start_page,current_page=i)
 
-    #TODO make add button works
+    #TODO create modal confirmation when click add book to collection --> and repair in collections (flash message)

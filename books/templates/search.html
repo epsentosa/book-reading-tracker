@@ -34,9 +34,12 @@
             <td>{{ book[1] }}</td>
             <td>{{ book[2] }}</td>
             <td class="text-center">
-                <button type="button" class="btn btn-success btn-sm">Add</button>
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
-                data-bs-target="#detail{{ book[0] }}">Detail</button>
+                <form action="{{ url_for('site.add_collection',book_id = book[0]) }}" method="POST">
+                  <!-- <button type="button" class="btn btn-success btn-sm">Add</button> -->
+                  <input type="submit" class="btn btn-success btn-sm" value="Add" />
+                  <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
+                  data-bs-target="#detail{{ book[0] }}">Detail</button>
+                </form>
             </td>
           </tr>
         {% endfor %}
