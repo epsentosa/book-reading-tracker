@@ -34,12 +34,10 @@
             <td>{{ book[1] }}</td>
             <td>{{ book[2] }}</td>
             <td class="text-center">
-                <form action="{{ url_for('site.add_collection',book_id = book[0]) }}" method="POST">
-                  <!-- <button type="button" class="btn btn-success btn-sm">Add</button> -->
-                  <input type="submit" class="btn btn-success btn-sm" value="Add" />
+                  <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" 
+                  data-bs-target="#confirmation_add{{ book[0] }}">Add</button>
                   <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
                   data-bs-target="#detail{{ book[0] }}">Detail</button>
-                </form>
             </td>
           </tr>
         {% endfor %}
@@ -95,92 +93,117 @@
     </ul>
   </nav>
   
+  <!-- Modal Section -->
+
   <!-- Modal for View Detail-->
   {% for book_id,tittle,num_pages,pub_date,isbn,publisher,author,added_by in result %}
-    <div class="modal fade" id="detail{{ book_id }}" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-              <h4 class="modal-title fw-bold" id="exampleModalLabel">{{ tittle }}</h4>
-          </div>
-          <div class="modal-body">
-              <table class="table table-borderless">
-                  <tbody>
-                      <tr>
-                          <td class="fw-bold" style="width:120px;">Total Pages</td>
-                          <td>: {{ num_pages }}</td>
-                      </tr>
-                      <tr>
-                          <td class="fw-bold">Published Date</td>
-                          <td>: {{ pub_date }}</td>
-                      </tr>
-                      <tr>
-                          <td class="fw-bold">ISBN</td>
-                          <td>: {{ isbn }}</td>
-                      </tr>
-                      <tr>
-                          <td class="fw-bold">Publisher</td>
-                          <td>: {{ publisher }}</td>
-                      </tr>
-                      <tr>
-                          <td class="fw-bold">Auhor</td>
-                          <td>: {{ author }}</td>
-                      </tr>
-              </table>
-          </div>
-          {% if added_by != "Eko Putra Sentosa" %}
-              <div class="container text-start fw-semibold fst-italic text-secondary">Added by user: {{ added_by }}</div>
-          {% endif %}
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
+  <div class="modal fade" id="detail{{ book_id }}" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title fw-bold">{{ tittle }}</h4>
+        </div>
+        <div class="modal-body">
+            <table class="table table-borderless">
+                <tbody>
+                    <tr>
+                        <td class="fw-bold" style="width:120px;">Total Pages</td>
+                        <td>: {{ num_pages }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Published Date</td>
+                        <td>: {{ pub_date }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">ISBN</td>
+                        <td>: {{ isbn }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Publisher</td>
+                        <td>: {{ publisher }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Auhor</td>
+                        <td>: {{ author }}</td>
+                    </tr>
+            </table>
+        </div>
+        {% if added_by != "Eko Putra Sentosa" %}
+            <div class="container text-start fw-semibold fst-italic text-secondary">Added by user: {{ added_by }}</div>
+        {% endif %}
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
-   {% endfor %}
+  </div>
+ {% endfor %}
 
-    <!-- Modal for adding new book tittle -->
-    <div class="modal fade" id="add" tabindex="-1">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title fw-bold">Insert detail book here</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <form method="POST" action="{{ url_for('site.add_book') }}">
-              {{ form_book.hidden_tag() }}
-              <div class="mb-3 input-group">
-                <span class="input-group-text" style="width:125px;">Tittle</span>
-                {{ form_book.tittle(class="form-control") }}
-              </div>
-              <div class="mb-3 input-group">
-                <span class="input-group-text" style="width:125px;">Total Pages</span>
-                {{ form_book.num_pages(class="form-control") }}
-              </div>
-              <div class="mb-3 input-group">
-                <span class="input-group-text" style="width:125px;">Publication Date</span>
-                {{ form_book.publication_date(class="form-control") }}
-              </div>
-              <div class="mb-3 input-group">
-                <span class="input-group-text" style="width:125px;">ISBN</span>
-                {{ form_book.isbn(class="form-control",placeholder="optional") }}
-              </div>
-              <div class="mb-3 input-group">
-                <span class="input-group-text" style="width:125px;">Publisher</span>
-                {{ form_book.publisher(class="form-control") }}
-              </div>
-              <div class="mb-3 input-group">
-                <span class="input-group-text" style="width:125px;">Author</span>
-                {{ form_book.author(class="form-control") }}
-              </div>
-          </div>
-          <div class="modal-footer">
-            {{ form_book.submit(class="btn btn-success",placeholder="Add Book")}}
-            </form>
-          </div>
+  <!-- Modal for adding new book tittle -->
+  <div class="modal fade" id="add" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title fw-bold">Insert detail book here</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{{ url_for('site.add_book') }}">
+            {{ form_book.hidden_tag() }}
+            <div class="mb-3 input-group">
+              <span class="input-group-text" style="width:125px;">Tittle</span>
+              {{ form_book.tittle(class="form-control") }}
+            </div>
+            <div class="mb-3 input-group">
+              <span class="input-group-text" style="width:125px;">Total Pages</span>
+              {{ form_book.num_pages(class="form-control") }}
+            </div>
+            <div class="mb-3 input-group">
+              <span class="input-group-text" style="width:125px;">Publication Date</span>
+              {{ form_book.publication_date(class="form-control") }}
+            </div>
+            <div class="mb-3 input-group">
+              <span class="input-group-text" style="width:125px;">ISBN</span>
+              {{ form_book.isbn(class="form-control",placeholder="optional") }}
+            </div>
+            <div class="mb-3 input-group">
+              <span class="input-group-text" style="width:125px;">Publisher</span>
+              {{ form_book.publisher(class="form-control") }}
+            </div>
+            <div class="mb-3 input-group">
+              <span class="input-group-text" style="width:125px;">Author</span>
+              {{ form_book.author(class="form-control") }}
+            </div>
+        </div>
+        <div class="modal-footer">
+          {{ form_book.submit(class="btn btn-success",placeholder="Add Book")}}
+          </form>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Modal for Add Button Confirmation -->
+  {% for book_id,tittle,num_pages,pub_date,isbn,publisher,author,added_by in result %}
+  <div class="modal fade" id="confirmation_add{{ book_id }}" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title fw-bold">{{ tittle }}</h5>
+        </div>
+        <div class="modal-body fst-italic">
+          Please confirm if you want to add this book.
+        </div>
+        <div class="modal-footer">
+          <form action="{{ url_for('site.add_collection',book_id = book_id) }}" method="POST">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <input type="submit" class="btn btn-success" value="Add to Collection" />
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
 
 {% endblock %}

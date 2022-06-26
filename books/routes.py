@@ -187,7 +187,8 @@ def add_book():
 
         with mysql.connection.cursor() as cursor:
             tittle_check = "SELECT tittle FROM books WHERE tittle = %s;"
-            insert_query = """INSERT INTO books (tittle,num_pages,publication_date,isbn,publisher_id,author_id,added_by) 
+            insert_query = """INSERT INTO books (tittle,num_pages,publication_date,
+                            isbn,publisher_id,author_id,added_by) 
                             VALUES (%s,%s,%s,%s,%s,%s,%s);"""
             cursor.execute(tittle_check,(tittle,))
             is_registered = cursor.fetchone()
@@ -228,7 +229,7 @@ def add_collection(book_id):
             cursor.execute(insert_query,(member_id,book_id))
             mysql.connection.commit()
 
-        flash("Book Registration Successful",category='success')
+        flash("New book added to Collections",category='success')
         return redirect(url_for('site.collection'))
     
 @site.route('/collections',methods = ['GET','POST'])
@@ -257,4 +258,4 @@ def collection(i = 1):
     return render_template('collection.html',form=search_form,result=result, \
             start_page=start_page,current_page=i)
 
-    #TODO create modal confirmation when click add book to collection --> and repair in collections (flash message)
+    #TODO repair and modify Collections Page (action button, pagination, etc)
