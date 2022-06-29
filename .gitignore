@@ -2,6 +2,7 @@
 venv
 
 #Pycache
+src/__pycache__
 src/books/__pycache__
 
 #Vscode
