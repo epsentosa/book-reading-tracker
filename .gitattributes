@@ -1,3 +1,3 @@
-#Ignore Bootstrap to github-linguist
+#Ignore Bootstrap to github-linguist to show only lang statistic edited by developer
 *.css linguist-detectable=false
 *.js linguist-detectable=false
