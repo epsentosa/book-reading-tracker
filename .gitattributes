@@ -1,0 +1,3 @@
+#Ignore Bootstrap to github-linguist
+*.css linguist-detectable=false
+*.js linguist-detectable=false
