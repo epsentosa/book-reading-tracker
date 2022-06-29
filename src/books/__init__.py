@@ -11,7 +11,7 @@ from books.routes import site
 def create_app():
     app = Flask(__name__)
 
-    config = yaml.safe_load(open('books/config.yaml'))
+    config = yaml.safe_load(open('config.yml'))
     mysql_conf = config['mysql']
     secret_key = config['secret_key']
 

@@ -2,10 +2,10 @@
 venv
 
 #Bootstrap inside static
-books/static
+src/books/static
 
 #Pycache
-books/__pycache__
+src/books/__pycache__
 
 #Vscode
 .vscode

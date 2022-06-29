@@ -1,5 +1,5 @@
 mysql:
-  host : 0.0.0.0
+  host : db-sql
   user : eps
   password : brew
   db : track_books

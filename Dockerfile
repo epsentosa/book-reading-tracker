@@ -9,8 +9,10 @@ RUN pip3 install --no-cache --upgrade pip setuptools
 
 WORKDIR /app
 
-COPY . .
+COPY requirements.txt requirements.txt
 
-RUN pip install --no-cache wheel && pip --no-cache-dir install -r req.txt
+RUN pip install --no-cache wheel && pip --no-cache-dir install -r requirements.txt
+
+COPY src/ .
 
 CMD ["python","app.py"]
