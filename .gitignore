@@ -1,9 +1,6 @@
 #Python Venv
 venv
 
-#Bootstrap inside static
-src/books/static
-
 #Pycache
 src/books/__pycache__
 
