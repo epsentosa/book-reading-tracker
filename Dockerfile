@@ -16,5 +16,3 @@ RUN pip install --no-cache wheel && pip --no-cache-dir install -r requirements.t
 COPY src/ .
 
 CMD ["gunicorn","--bind","0.0.0.0:8000","app:gunicorn_app"]
-
-EXPOSE 8000

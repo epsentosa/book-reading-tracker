@@ -1,25 +1,20 @@
 from flask import Flask
 from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
-import yaml
 
 bcrypt = Bcrypt()
 mysql = MySQL()
 
 from books.routes import site
 
-def create_app():
+def create_app(host,user,password,db,secretkey):
     app = Flask(__name__)
 
-    config = yaml.safe_load(open('config.yml'))
-    mysql_conf = config['mysql']
-    secret_key = config['secret_key']
-
-    app.config['MYSQL_HOST'] = mysql_conf['host']
-    app.config['MYSQL_USER'] = mysql_conf['user']
-    app.config['MYSQL_PASSWORD'] = mysql_conf['password']
-    app.config['MYSQL_DB'] = mysql_conf['db']
-    app.config['SECRET_KEY'] = secret_key
+    app.config['MYSQL_HOST'] = host
+    app.config['MYSQL_USER'] = user
+    app.config['MYSQL_PASSWORD'] = password
+    app.config['MYSQL_DB'] = db
+    app.config['SECRET_KEY'] = secretkey
     
     mysql.init_app(app)
     bcrypt.init_app(app)
