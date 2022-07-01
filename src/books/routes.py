@@ -242,20 +242,34 @@ def collection(i = 1):
     start_page = (i * 10) - 10
     result_per_page = 10
 
-    def create_result(user_id,start_page,result_per_page):
+    def create_result(user_id,start_page,result_per_page,tittle):
         with mysql.connection.cursor() as cursor:
             search_query = """ SELECT b.tittle,b.num_pages FROM books b
                             INNER JOIN collections c ON c.book_id = b.book_id
                             INNER JOIN members m ON c.member_id = m.member_id
-                            where c.member_id = %s """ % user_id
+                            where c.member_id = %s and b.tittle LIKE '%%%s%%' """ % (user_id,tittle)
             cursor.execute(search_query + "LIMIT %s,%s" % (start_page,result_per_page))
             result = cursor.fetchall()
             return result
 
     user_id = session["id"]
-    result = create_result(user_id,start_page,result_per_page)
+    tittle = ''
 
-    return render_template('collection.html',form=search_form,result=result, \
-            start_page=start_page,current_page=i)
+    with mysql.connection.cursor() as cursor:
+        collection_query = "SELECT * FROM collections WHERE member_id = %s;"
+        cursor.execute(collection_query,(user_id,))
+        total_collection = cursor.rowcount
 
-    #TODO repair and modify Collections Page (action button, pagination, etc)
+    total_pages = ceil(total_collection/result_per_page)
+    result = create_result(user_id,start_page,result_per_page,tittle)
+
+    return render_template('collection.html',form=search_form,result=result,total_pages=total_pages, \
+            start_page=start_page,total_query=total_collection,current_page=i)
+
+    # TODO
+    # - Make Pagination in collection [done]
+    # - Make search bar works
+    # - Create Collapse detail and Notes
+    # - Action
+    #  + Add to Notes
+    #  + Remove from collection
