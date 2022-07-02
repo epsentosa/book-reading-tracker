@@ -18,8 +18,21 @@
     {% endif %}
   {% endwith %}
 
-  {% if total_query and total_query > 10 %}
-    <p class="fw-bold">You Have {{ total_query }} Collections</p>
+  {% if on_search %}
+  <p class="fw-bold">You Have {{ global_total_query }} Collections, Found {{ total_query }} Book Tittle</p>
+     <div class="row my-3">
+       <div class="col-lg-6">
+         <div class="container-sm">
+           <form method="POST" class="d-flex" role="search">
+              {{ form.hidden_tag() }}
+              {{ form.search(class="form-control me-2",placeholder="Search Book Tittle") }}
+              {{ form.submit(class="btn btn-outline-success",placeholder="Search")}}
+           </form>
+         </div>
+       </div>
+     </div>
+  {% elif total_query and total_query > 10 %}
+  <p class="fw-bold">You Have {{ global_total_query }} Collections</p>
      <div class="row my-3">
        <div class="col-lg-6">
          <div class="container-sm">
@@ -32,7 +45,7 @@
        </div>
      </div>
   {% elif total_query <= 10 %}
-    <p class="fw-bold">You Have {{ total_query }} Collections</p>
+    <p class="fw-bold">You Have {{ global_total_query }} Collections</p>
   {% endif %}
 
   {% if result %}
@@ -45,13 +58,19 @@
       </tr>
     </thead>
     <tbody class="table-group-divider">
-        {% for book in result %}
+        {% for book_id,tittle,page_num in result %}
           <tr>
-            <td>{{ book[0] }}</td>
-            <td>{{ book[1] }}</td>
+              <td>{{ tittle }}<br>
+                  <div class="collapse" id="detail{{ book_id }}">
+                  <div class="card card-body">
+                    Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.
+                  </div>
+                </div>
+            </td>
+            <td>{{ page_num }}</td>
             <td class="text-center">
                 <button type="button" class="btn btn-success btn-sm">Add</button>
-                <button type="button" class="btn btn-secondary btn-sm">Detail</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#detail{{ book_id }}">Detail</button>
             </td>
           </tr>
         {% endfor %}

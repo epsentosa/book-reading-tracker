@@ -244,7 +244,7 @@ def collection(i = 1):
 
     def create_result(user_id,start_page,result_per_page,tittle):
         with mysql.connection.cursor() as cursor:
-            search_query = """ SELECT b.tittle,b.num_pages FROM books b
+            search_query = """ SELECT b.book_id,b.tittle,b.num_pages FROM books b
                             INNER JOIN collections c ON c.book_id = b.book_id
                             INNER JOIN members m ON c.member_id = m.member_id
                             where c.member_id = %s and b.tittle LIKE '%%%s%%' """ % (user_id,tittle)
@@ -252,24 +252,74 @@ def collection(i = 1):
             result = cursor.fetchall()
             return result
 
+    def count_collection(user_id,tittle):
+        with mysql.connection.cursor() as cursor:
+            collection_query = """ SELECT b.tittle,b.num_pages FROM books b
+                            INNER JOIN collections c ON c.book_id = b.book_id
+                            INNER JOIN members m ON c.member_id = m.member_id
+                            where c.member_id = %s and b.tittle LIKE '%%%s%%' """ % (user_id,tittle)
+            cursor.execute(collection_query)
+            total_collection = cursor.rowcount
+            total_pages = ceil(total_collection/10)
+            return (total_collection,total_pages)
+
     user_id = session["id"]
     tittle = ''
 
-    with mysql.connection.cursor() as cursor:
-        collection_query = "SELECT * FROM collections WHERE member_id = %s;"
-        cursor.execute(collection_query,(user_id,))
-        total_collection = cursor.rowcount
+    if request.method == "POST":
+        tittle = search_form.search.data
+        if tittle:
+            i, start_page = 1, 0
+            on_search = True
+            # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
+            tittle = tittle.replace("\'","\\'")
+            tittle = tittle.replace("%","\%")
+            # best solution i found so far
+            total_collection = count_collection(user_id,tittle)[0]
+            total_pages = count_collection(user_id,tittle)[1]
+            if total_collection == 0:
+                flash("No Data Found")
 
-    total_pages = ceil(total_collection/result_per_page)
+            session["search"] = tittle
+            session["total_query"] = total_collection
+            session["total_pages"] = total_pages
+            session["on_search"] = on_search 
+
+        else:
+            tittle = session["search"]
+            total_collection = session["total_query"]
+            total_pages = session["total_pages"]
+            on_search = session["on_search"]
+
+        global_total_collection = session["global_total_query"]
+        result = create_result(user_id,start_page,result_per_page,tittle)
+        return render_template('collection.html',form=search_form,result=result,total_pages=total_pages, \
+                start_page=start_page,total_query=total_collection,current_page=i, \
+                global_total_query=global_total_collection,on_search=on_search)
+
+
+    total_collection = count_collection(user_id,tittle)[0]
+    global_total_collection = total_collection
+    total_pages = count_collection(user_id,tittle)[1]
+    on_search = False
+    
     result = create_result(user_id,start_page,result_per_page,tittle)
 
+    session["search"] = tittle
+    session["total_query"] = total_collection
+    session["total_pages"] = total_pages
+    session["on_search"] = on_search 
+    session["global_total_query"] = global_total_collection
+
     return render_template('collection.html',form=search_form,result=result,total_pages=total_pages, \
-            start_page=start_page,total_query=total_collection,current_page=i)
+            start_page=start_page,total_query=total_collection,current_page=i, \
+            global_total_query=global_total_collection,on_search=on_search)
 
     # TODO
     # - Make Pagination in collection [done]
-    # - Make search bar works
-    # - Create Collapse detail and Notes
+    # - Make search bar works [done]
+    # - Create Collapse detail [done], real detail data waiting Notes page active
     # - Action
     #  + Add to Notes
     #  + Remove from collection
+    # - Craete decoration for is_login
