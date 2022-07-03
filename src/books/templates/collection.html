@@ -53,24 +53,53 @@
     <thead>
       <tr class="text-center align-middle table-warning border border-2 border-dark border-opacity-75">
         <th scope="col">Tittle</th>
-        <th scope="col" style="width: 90px;">Total Pages</th>
-        <th scope="col" style="width:120px;">Action</th>
+        <th scope="col" style="width: 90px;">Total Notes</th>
+        <th scope="col" style="width:200px;">Action</th>
       </tr>
     </thead>
     <tbody class="table-group-divider">
-        {% for book_id,tittle,page_num in result %}
+        {% for book_id,tittle,num_pages,pub_date,isbn,publisher,author,added_by in result %}
           <tr>
               <td>{{ tittle }}<br>
-                  <div class="collapse" id="detail{{ book_id }}">
-                  <div class="card card-body">
-                    Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.
+                <div class="collapse" id="detail{{ book_id }}">
+                  <div class="card card-body py-0 bg-secondary bg-opacity-25">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold" style="width:120px;">Total Pages</td>
+                                <td>: {{ num_pages }}</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Published Date</td>
+                                <td>: {{ pub_date }}</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">ISBN</td>
+                                <td>: {{ isbn }}</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Publisher</td>
+                                <td>: {{ publisher }}</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Auhor</td>
+                                <td>: {{ author }}</td>
+                            </tr>
+                            {% if added_by != "Eko Putra Sentosa" %}
+                                <tr>
+                                    <td class="fw-bold fw-semibold fst-italic text-primary">Added by user</td>
+                                    <td class="fw-bold fw-semibold fst-italic text-primary">: {{ added_by }}</td>
+                                </tr>
+                            {% endif %}
+                    </table>
                   </div>
                 </div>
             </td>
-            <td>{{ page_num }}</td>
+            <td>##tbd</td>
             <td class="text-center">
-                <button type="button" class="btn btn-success btn-sm">Add</button>
+                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#confirmation_add_note{{ book_id }}">Add Note</button>
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#detail{{ book_id }}">Detail</button>
+                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delete_confirmation{{ book_id }}">Delete</button>
             </td>
           </tr>
         {% endfor %}
@@ -111,5 +140,51 @@
       {% endif %}
     </ul>
   </nav>
+
+  <!-- Modal for Add Note Button Confirmation -->
+  {% for book_id,tittle,num_pages,pub_date,isbn,publisher,author,added_by in result %}
+  <div class="modal fade" id="confirmation_add_note{{ book_id }}" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title fw-bold">{{ tittle }}</h5>
+        </div>
+        <div class="modal-body fst-italic">
+          Want to add Note to this Book?, Please confirm
+        </div>
+        <div class="modal-footer">
+          <form action="#" method="POST">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <input type="submit" class="btn btn-success" value="Add Note" />
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+
+  <!-- Modal for Delete Confirmation -->
+  {% for book_id,tittle,num_pages,pub_date,isbn,publisher,author,added_by in result %}
+  <div class="modal fade" id="delete_confirmation{{ book_id }}" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title fw-bold">{{ tittle }}</h5>
+        </div>
+        <div class="modal-body fst-italic">
+            Please Confirm if you want to delete this book from Collections
+        </div>
+        <div class="modal-footer">
+          <form action="{{ url_for('site.delete_collection',book_id = book_id) }}" method="POST">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <input type="submit" class="btn btn-danger" value="Delete" />
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
 
 {% endblock %}

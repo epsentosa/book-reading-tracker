@@ -11,19 +11,28 @@ from books.forms import RegistrationForm
 from books.forms import LoginForm
 from books.forms import SearchForm
 from books.forms import AddBook
+from functools import wraps
 from math import ceil
+
+
+def is_logged_in(fn):
+    @wraps(fn)
+    def wrapper(*args,**kwargs):
+        if "user" in session:
+            return fn(*args,**kwargs)
+        flash("Please login first")
+        return redirect(url_for('site.login_page'))
+    return wrapper
+
 
 site = Blueprint('site',__name__,static_folder="static")
 
 @site.route('/')
 @site.route('/home',methods = ['POST','GET'])
+@is_logged_in
 def home_page():
-    if "user" in session:
-        msg = f"Succesfully Login for user {session['user']}"
-
-        return render_template("home.html",msg=msg)
-
-    return redirect(url_for('site.login_page'))
+    msg = f"Succesfully Login for user {session['user']}"
+    return render_template("home.html",msg=msg)
 
 @site.route('/register',methods = ['POST','GET'])
 def register_page():
@@ -98,10 +107,8 @@ def logout():
 
 @site.route('/search',methods = ['POST','GET'])
 @site.route('/search/page/<int:i>',methods = ['POST','GET'])
+@is_logged_in
 def search(i = 1):
-    if "user" not in session:
-        return redirect(url_for('site.home_page'))
-
     search_form = SearchForm()
     add_book = AddBook()
     start_page = (i * 10) - 10
@@ -234,9 +241,8 @@ def add_collection(book_id):
     
 @site.route('/collections',methods = ['GET','POST'])
 @site.route('/collections/page/<int:i>',methods = ['GET','POST'])
+@is_logged_in
 def collection(i = 1):
-    if "user" not in session:
-        return redirect(url_for('site.home_page'))
 
     search_form = SearchForm()
     start_page = (i * 10) - 10
@@ -244,7 +250,11 @@ def collection(i = 1):
 
     def create_result(user_id,start_page,result_per_page,tittle):
         with mysql.connection.cursor() as cursor:
-            search_query = """ SELECT b.book_id,b.tittle,b.num_pages FROM books b
+            search_query = """ SELECT b.book_id,b.tittle,b.num_pages,b.publication_date,b.isbn, 
+                            p.name,a.name,m_add.full_name FROM books b
+                            LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
+                            LEFT JOIN authors a ON b.author_id = a.author_id 
+                            LEFT JOIN members m_add ON b.added_by = m_add.member_id
                             INNER JOIN collections c ON c.book_id = b.book_id
                             INNER JOIN members m ON c.member_id = m.member_id
                             where c.member_id = %s and b.tittle LIKE '%%%s%%' """ % (user_id,tittle)
@@ -315,11 +325,22 @@ def collection(i = 1):
             start_page=start_page,total_query=total_collection,current_page=i, \
             global_total_query=global_total_collection,on_search=on_search)
 
+@site.route('/delete_collection/<int:book_id>',methods = ['POST'])
+def delete_collection(book_id):
+
+    member_id = session['id']
+    if request.method == "POST":
+
+        with mysql.connection.cursor() as cursor:
+            check_query = "SELECT tittle FROM books WHERE book_id = %s;"
+            delete_query = "DELETE FROM collections WHERE member_id = %s and book_id = %s;"
+            cursor.execute(check_query,(book_id,))
+            book_tittle = cursor.fetchone()
+            cursor.execute(delete_query,(member_id,book_id))
+            mysql.connection.commit()
+
+        flash(f"-->{book_tittle[0]}<-- has deleted from your Collections",category='success')
+        return redirect(url_for('site.collection'))
+
     # TODO
-    # - Make Pagination in collection [done]
-    # - Make search bar works [done]
-    # - Create Collapse detail [done], real detail data waiting Notes page active
-    # - Action
-    #  + Add to Notes
-    #  + Remove from collection
-    # - Craete decoration for is_login
+    # Design and Create Note Pages
