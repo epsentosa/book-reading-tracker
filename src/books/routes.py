@@ -344,3 +344,4 @@ def delete_collection(book_id):
 
     # TODO
     # Design and Create Note Pages
+    # Make dinamic search value when next page
