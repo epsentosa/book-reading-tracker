@@ -105,30 +105,15 @@ def logout():
     session.pop('user',None)
     return redirect(url_for('site.home_page'))
 
-@site.route('/search',methods = ['POST','GET'])
-@site.route('/search/page/<int:i>',methods = ['POST','GET'])
+@site.route('/search_result',methods = ['POST'])
 @is_logged_in
-def search(i = 1):
-    search_form = SearchForm()
-    add_book = AddBook()
-    start_page = (i * 10) - 10
-    result_per_page = 10
+def search_result():
     if request.method == "POST":
-
-        def create_result(title,start_page,result_per_page):
-            with mysql.connection.cursor() as cursor:
-                search_query = """ SELECT b.book_id,b.tittle,b.num_pages,b.publication_date,b.isbn,p.name,a.name,m.full_name
-                                    FROM books b LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
-                                    LEFT JOIN authors a ON b.author_id = a.author_id 
-                                    LEFT JOIN members m ON b.added_by = m.member_id
-                                    WHERE b.tittle LIKE '%%%s%%'""" % title
-                cursor.execute(search_query + "LIMIT %s,%s" % (start_page,result_per_page))
-                result = cursor.fetchall()
-                return result
-
-        title = search_form.search.data
+        title = request.form.get('search')
+        index = request.form.get('page',1)
+        result_per_page = 10
+        
         if title:
-            i, start_page = 1, 0
             # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
             title = title.replace("\'","\\'")
             title = title.replace("%","\%")
@@ -141,21 +126,47 @@ def search(i = 1):
                 if total_query_result == 0:
                     flash("No Data Found")
         
-            session["search"] = title
+            session['search'] = title
             session["total_query"] = total_query_result
             session["total_pages"] = total_pages
 
         else:
-            title = session["search"]
-            total_query_result = session["total_query"]
-            total_pages = session["total_pages"]
+            title = session['search']
+
+        return redirect(url_for('site.search',keyword = title, i = index))
+
+@site.route('/search',methods = ['POST','GET'])
+@site.route('/search/<keyword>/page/<int:i>',methods = ['POST','GET'])
+@is_logged_in
+def search(i = 1, keyword = None):
+    search_form = SearchForm()
+    add_book = AddBook()
+    start_page = (i * 10) - 10
+    result_per_page = 10
+    print(i, keyword)
+
+    def create_result(title,start_page,result_per_page):
+        with mysql.connection.cursor() as cursor:
+            search_query = """ SELECT b.book_id,b.tittle,b.num_pages,b.publication_date,b.isbn,p.name,a.name,m.full_name
+                                FROM books b LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
+                                LEFT JOIN authors a ON b.author_id = a.author_id 
+                                LEFT JOIN members m ON b.added_by = m.member_id
+                                WHERE b.tittle LIKE '%%%s%%'""" % title
+            cursor.execute(search_query + "LIMIT %s,%s" % (start_page,result_per_page))
+            result = cursor.fetchall()
+            return result
+
+    if keyword:
+        title = keyword
+        
+        total_query_result = session["total_query"]
+        total_pages = session["total_pages"]
             
         result = create_result(title,start_page,result_per_page)
 
         return render_template('search.html',form=search_form,form_book=add_book,result=result, \
                 total_query=total_query_result,total_pages=total_pages,start_page=start_page,current_page=i)
 
-    session.pop('search',None)
     session.pop('total_query',None)
     session.pop('total_pages',None)
     return render_template('search.html',form=search_form,form_book=add_book)
@@ -345,3 +356,4 @@ def delete_collection(book_id):
     # TODO
     # Design and Create Note Pages
     # Make dinamic search value when next page
+    # refactor and make clean pagination
