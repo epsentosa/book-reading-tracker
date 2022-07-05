@@ -105,45 +105,10 @@ def logout():
     session.pop('user',None)
     return redirect(url_for('site.home_page'))
 
-@site.route('/search_result',methods = ['POST'])
-@is_logged_in
-def search_result():
-    if request.method == "POST":
-        title = request.form.get('search')
-        index = request.form.get('page',1)
-        result_per_page = 10
-        
-        if title:
-            # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
-            title = title.replace("\'","\\'")
-            title = title.replace("%","\%")
-            # best solution i found so far
-            with mysql.connection.cursor() as cursor:
-                search_query = "SELECT * FROM books WHERE tittle LIKE '%%%s%%'" % title
-                cursor.execute(search_query)
-                total_query_result = cursor.rowcount
-                total_pages = ceil(total_query_result/result_per_page)
-                if total_query_result == 0:
-                    flash("No Data Found")
-        
-            session['search'] = title
-            session["total_query"] = total_query_result
-            session["total_pages"] = total_pages
-
-        else:
-            title = session['search']
-
-        return redirect(url_for('site.search',keyword = title, i = index))
-
 @site.route('/search',methods = ['POST','GET'])
-@site.route('/search/<keyword>/page/<int:i>',methods = ['POST','GET'])
+@site.route('/search/<keyword>/page/<int:index>',methods = ['POST','GET'])
 @is_logged_in
-def search(i = 1, keyword = None):
-    search_form = SearchForm()
-    add_book = AddBook()
-    start_page = (i * 10) - 10
-    result_per_page = 10
-    print(i, keyword)
+def search(index = 1, keyword = None):
 
     def create_result(title,start_page,result_per_page):
         with mysql.connection.cursor() as cursor:
@@ -156,6 +121,11 @@ def search(i = 1, keyword = None):
             result = cursor.fetchall()
             return result
 
+    search_form = SearchForm()
+    add_book = AddBook()
+    start_page = (index * 10) - 10
+    result_per_page = 10
+
     if keyword:
         title = keyword
         
@@ -164,12 +134,44 @@ def search(i = 1, keyword = None):
             
         result = create_result(title,start_page,result_per_page)
 
-        return render_template('search.html',form=search_form,form_book=add_book,result=result, \
-                total_query=total_query_result,total_pages=total_pages,start_page=start_page,current_page=i)
+        return render_template('search.html',form=search_form,form_book=add_book,result=result,keyword = title, \
+                total_query=total_query_result,total_pages=total_pages,start_page=start_page,current_page=index)
 
     session.pop('total_query',None)
     session.pop('total_pages',None)
     return render_template('search.html',form=search_form,form_book=add_book)
+
+@site.route('/searching',methods = ['POST'])
+@is_logged_in
+def searching():
+    title = request.form.get('search')
+    index = request.form.get('page',1)
+    result_per_page = 10
+    
+    if title:
+        # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
+        title = title.replace("\'","\\'")
+        title = title.replace("%","\%")
+        # best solution i found so far
+        with mysql.connection.cursor() as cursor:
+            search_query = "SELECT * FROM books WHERE tittle LIKE '%%%s%%'" % title
+            cursor.execute(search_query)
+            total_query_result = cursor.rowcount
+            total_pages = ceil(total_query_result/result_per_page)
+            if total_query_result == 0:
+                flash("No Data Found")
+    
+        session['search'] = title
+        session["total_query"] = total_query_result
+        session["total_pages"] = total_pages
+
+    else:
+        total_pages = session['total_pages']
+        if int(index) > total_pages:
+            flash("Out of range pages",category="out_range")
+        title = session['search']
+
+    return redirect(url_for('site.search',keyword = title, index = index))
 
 @site.route('/add_book',methods = ["POST"])
 def add_book():
@@ -249,14 +251,29 @@ def add_collection(book_id):
 
         flash("New book added to Collections",category='success')
         return redirect(url_for('site.collection'))
+
+"""
+function for collection use
+"""
+def count_collection(user_id,tittle,result_per_page):
+    with mysql.connection.cursor() as cursor:
+        collection_query = """ SELECT b.tittle,b.num_pages FROM books b
+                        INNER JOIN collections c ON c.book_id = b.book_id
+                        INNER JOIN members m ON c.member_id = m.member_id
+                        where c.member_id = %s and b.tittle LIKE '%%%s%%' """ % (user_id,tittle)
+        cursor.execute(collection_query)
+        total_collection = cursor.rowcount
+        total_pages = ceil(total_collection/result_per_page)
+        return (total_collection,total_pages)
     
-@site.route('/collections',methods = ['GET','POST'])
-@site.route('/collections/page/<int:i>',methods = ['GET','POST'])
+@site.route('/collection',methods = ['GET','POST'])
+@site.route('/collection/page/<int:index>',methods = ['GET','POST'])
+@site.route('/collection/search/<keyword>/page/<int:index>',methods = ['GET','POST'])
 @is_logged_in
-def collection(i = 1):
+def collection(index = 1,keyword = None):
 
     search_form = SearchForm()
-    start_page = (i * 10) - 10
+    start_page = (index * 10) - 10
     result_per_page = 10
 
     def create_result(user_id,start_page,result_per_page,tittle):
@@ -273,55 +290,25 @@ def collection(i = 1):
             result = cursor.fetchall()
             return result
 
-    def count_collection(user_id,tittle):
-        with mysql.connection.cursor() as cursor:
-            collection_query = """ SELECT b.tittle,b.num_pages FROM books b
-                            INNER JOIN collections c ON c.book_id = b.book_id
-                            INNER JOIN members m ON c.member_id = m.member_id
-                            where c.member_id = %s and b.tittle LIKE '%%%s%%' """ % (user_id,tittle)
-            cursor.execute(collection_query)
-            total_collection = cursor.rowcount
-            total_pages = ceil(total_collection/10)
-            return (total_collection,total_pages)
-
     user_id = session["id"]
     tittle = ''
 
-    if request.method == "POST":
-        tittle = search_form.search.data
-        if tittle:
-            i, start_page = 1, 0
-            on_search = True
-            # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
-            tittle = tittle.replace("\'","\\'")
-            tittle = tittle.replace("%","\%")
-            # best solution i found so far
-            total_collection = count_collection(user_id,tittle)[0]
-            total_pages = count_collection(user_id,tittle)[1]
-            if total_collection == 0:
-                flash("No Data Found")
-
-            session["search"] = tittle
-            session["total_query"] = total_collection
-            session["total_pages"] = total_pages
-            session["on_search"] = on_search 
-
-        else:
-            tittle = session["search"]
-            total_collection = session["total_query"]
-            total_pages = session["total_pages"]
-            on_search = session["on_search"]
+    if keyword:
+        tittle = keyword
+        total_collection = session["total_query"]
+        total_pages = session["total_pages"]
+        on_search = session["on_search"]
 
         global_total_collection = session["global_total_query"]
         result = create_result(user_id,start_page,result_per_page,tittle)
         return render_template('collection.html',form=search_form,result=result,total_pages=total_pages, \
-                start_page=start_page,total_query=total_collection,current_page=i, \
+                start_page=start_page,total_query=total_collection,current_page=index,keyword = tittle, \
                 global_total_query=global_total_collection,on_search=on_search)
 
 
-    total_collection = count_collection(user_id,tittle)[0]
+    total_collection = count_collection(user_id,tittle,result_per_page)[0]
     global_total_collection = total_collection
-    total_pages = count_collection(user_id,tittle)[1]
+    total_pages = count_collection(user_id,tittle,result_per_page)[1]
     on_search = False
     
     result = create_result(user_id,start_page,result_per_page,tittle)
@@ -333,8 +320,39 @@ def collection(i = 1):
     session["global_total_query"] = global_total_collection
 
     return render_template('collection.html',form=search_form,result=result,total_pages=total_pages, \
-            start_page=start_page,total_query=total_collection,current_page=i, \
+            start_page=start_page,total_query=total_collection,current_page=index,keyword = tittle, \
             global_total_query=global_total_collection,on_search=on_search)
+
+@site.route('/collection_searching',methods = ['POST'])
+def collection_searching():
+    user_id = session["id"]
+    tittle = request.form.get('search')
+    index = request.form.get('page',1)
+    result_per_page = 10
+    on_search = session['on_search']
+
+    if tittle or on_search:
+        on_search = True
+        if tittle:
+            # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
+            tittle = tittle.replace("\'","\\'")
+            tittle = tittle.replace("%","\%")
+            # best solution i found so far
+        else:
+            tittle = session['search']
+        total_collection = count_collection(user_id,tittle,result_per_page)[0]
+        total_pages = count_collection(user_id,tittle,result_per_page)[1]
+        if total_collection == 0:
+            flash("No Data Found")
+
+        session["search"] = tittle
+        session["total_query"] = total_collection
+        session["total_pages"] = total_pages
+        session["on_search"] = on_search 
+
+        return redirect(url_for('site.collection', keyword = tittle, index = index))
+    else:
+        return redirect(url_for('site.collection', index = index))
 
 @site.route('/delete_collection/<int:book_id>',methods = ['POST'])
 def delete_collection(book_id):
@@ -355,5 +373,4 @@ def delete_collection(book_id):
 
     # TODO
     # Design and Create Note Pages
-    # Make dinamic search value when next page
-    # refactor and make clean pagination
+    # Repair addbook route to automatic adding to collection user itself
