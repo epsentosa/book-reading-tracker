@@ -139,6 +139,8 @@ def search(index = 1, keyword = None):
 
     session.pop('total_query',None)
     session.pop('total_pages',None)
+    # below session for passing when add book byself and automatically add to collection, to show difference flashed in collection
+    session['add_book_byself'] = False
     return render_template('search.html',form=search_form,form_book=add_book)
 
 @site.route('/searching',methods = ['POST'])
@@ -206,7 +208,7 @@ def add_book():
         author = form.author.data
 
         with mysql.connection.cursor() as cursor:
-            tittle_check = "SELECT tittle FROM books WHERE tittle = %s;"
+            tittle_check = "SELECT book_id FROM books WHERE tittle = %s;"
             insert_query = """INSERT INTO books (tittle,num_pages,publication_date,
                             isbn,publisher_id,author_id,added_by) 
                             VALUES (%s,%s,%s,%s,%s,%s,%s);"""
@@ -221,9 +223,12 @@ def add_book():
             cursor.execute(insert_query,(tittle,num_pages,publication_date,isbn,publisher_id,author_id,member_id))
             mysql.connection.commit()
 
-        flash("Book Registration Successful",category='success')
-        # return redirect(url_for('site.collections'))
-        return redirect(url_for('site.search'))
+            # this run the query again to take book_id and passing to add_collection
+            cursor.execute(tittle_check,(tittle,))
+            is_registered = cursor.fetchone()
+
+        session['add_book_byself'] = True
+        return redirect(url_for('site.add_collection',book_id = is_registered ))
     
     if form.errors: 
         for error in form.errors.values():
@@ -231,26 +236,28 @@ def add_book():
 
     return redirect(url_for('site.search'))
 
-@site.route('/add_collection/<int:book_id>',methods = ['POST'])
+@site.route('/add_collection/<int:book_id>',methods = ['GET','POST'])
 def add_collection(book_id):
 
     member_id = session['id']
-    if request.method == "POST":
+    with mysql.connection.cursor() as cursor:
+        book_id_check = "SELECT book_id FROM collections WHERE member_id = %s and book_id = %s;"
+        insert_query = "INSERT INTO collections (member_id,book_id) VALUES (%s,%s);"
+        cursor.execute(book_id_check,(member_id,book_id))
+        is_registered = cursor.fetchone()
+        if is_registered:
+            flash("Book already in Your Collections.")
+            return redirect(url_for('site.collection'))
 
-        with mysql.connection.cursor() as cursor:
-            book_id_check = "SELECT book_id FROM collections WHERE member_id = %s and book_id = %s;"
-            insert_query = "INSERT INTO collections (member_id,book_id) VALUES (%s,%s);"
-            cursor.execute(book_id_check,(member_id,book_id))
-            is_registered = cursor.fetchone()
-            if is_registered:
-                flash("Book already in Your Collections.")
-                return redirect(url_for('site.collection'))
+        cursor.execute(insert_query,(member_id,book_id))
+        mysql.connection.commit()
 
-            cursor.execute(insert_query,(member_id,book_id))
-            mysql.connection.commit()
-
+    add_book_byself = session['add_book_byself']
+    if add_book_byself:
+        flash("Book Registration Successful, added automatically to your Collection",category='success')
+    else:
         flash("New book added to Collections",category='success')
-        return redirect(url_for('site.collection'))
+    return redirect(url_for('site.collection'))
 
 """
 function for collection use
@@ -373,4 +380,3 @@ def delete_collection(book_id):
 
     # TODO
     # Design and Create Note Pages
-    # Repair addbook route to automatic adding to collection user itself
