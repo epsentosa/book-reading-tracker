@@ -112,11 +112,11 @@ def search(index = 1, keyword = None):
 
     def create_result(title,start_page,result_per_page):
         with mysql.connection.cursor() as cursor:
-            search_query = """ SELECT b.book_id,b.tittle,b.num_pages,b.publication_date,b.isbn,p.name,a.name,m.full_name
+            search_query = """ SELECT b.book_id,b.title,b.num_pages,b.publication_date,b.isbn,p.name,a.name,m.full_name
                                 FROM books b LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
                                 LEFT JOIN authors a ON b.author_id = a.author_id 
                                 LEFT JOIN members m ON b.added_by = m.member_id
-                                WHERE b.tittle LIKE '%%%s%%'""" % title
+                                WHERE b.title LIKE '%%%s%%'""" % title
             cursor.execute(search_query + "LIMIT %s,%s" % (start_page,result_per_page))
             result = cursor.fetchall()
             return result
@@ -156,7 +156,7 @@ def searching():
         title = title.replace("%","\%")
         # best solution i found so far
         with mysql.connection.cursor() as cursor:
-            search_query = "SELECT * FROM books WHERE tittle LIKE '%%%s%%'" % title
+            search_query = "SELECT * FROM books WHERE title LIKE '%%%s%%'" % title
             cursor.execute(search_query)
             total_query_result = cursor.rowcount
             total_pages = ceil(total_query_result/result_per_page)
@@ -200,7 +200,7 @@ def add_book():
     member_id = session['id']
     form = AddBook()
     if form.validate_on_submit():
-        tittle = form.tittle.data
+        title = form.title.data
         num_pages = form.num_pages.data
         publication_date = form.publication_date.data
         isbn = form.isbn.data
@@ -208,11 +208,11 @@ def add_book():
         author = form.author.data
 
         with mysql.connection.cursor() as cursor:
-            tittle_check = "SELECT book_id FROM books WHERE tittle = %s;"
-            insert_query = """INSERT INTO books (tittle,num_pages,publication_date,
+            title_check = "SELECT book_id FROM books WHERE title = %s;"
+            insert_query = """INSERT INTO books (title,num_pages,publication_date,
                             isbn,publisher_id,author_id,added_by) 
                             VALUES (%s,%s,%s,%s,%s,%s,%s);"""
-            cursor.execute(tittle_check,(tittle,))
+            cursor.execute(title_check,(title,))
             is_registered = cursor.fetchone()
             if is_registered:
                 flash("Book already in Database.")
@@ -220,11 +220,11 @@ def add_book():
 
             publisher_id = query_check_or_add(publisher,'publishers')
             author_id = query_check_or_add(author,'authors')
-            cursor.execute(insert_query,(tittle,num_pages,publication_date,isbn,publisher_id,author_id,member_id))
+            cursor.execute(insert_query,(title,num_pages,publication_date,isbn,publisher_id,author_id,member_id))
             mysql.connection.commit()
 
             # this run the query again to take book_id and passing to add_collection
-            cursor.execute(tittle_check,(tittle,))
+            cursor.execute(title_check,(title,))
             is_registered = cursor.fetchone()
 
         session['add_book_byself'] = True
@@ -262,12 +262,12 @@ def add_collection(book_id):
 """
 function for collection use
 """
-def count_collection(user_id,tittle,result_per_page):
+def count_collection(user_id,title,result_per_page):
     with mysql.connection.cursor() as cursor:
-        collection_query = """ SELECT b.tittle,b.num_pages FROM books b
+        collection_query = """ SELECT b.title,b.num_pages FROM books b
                         INNER JOIN collections c ON c.book_id = b.book_id
                         INNER JOIN members m ON c.member_id = m.member_id
-                        where c.member_id = %s and b.tittle LIKE '%%%s%%' """ % (user_id,tittle)
+                        where c.member_id = %s and b.title LIKE '%%%s%%' """ % (user_id,title)
         cursor.execute(collection_query)
         total_collection = cursor.rowcount
         total_pages = ceil(total_collection/result_per_page)
@@ -283,81 +283,81 @@ def collection(index = 1,keyword = None):
     start_page = (index * 10) - 10
     result_per_page = 10
 
-    def create_result(user_id,start_page,result_per_page,tittle):
+    def create_result(user_id,start_page,result_per_page,title):
         with mysql.connection.cursor() as cursor:
-            search_query = """ SELECT b.book_id,b.tittle,b.num_pages,b.publication_date,b.isbn, 
+            search_query = """ SELECT b.book_id,b.title,b.num_pages,b.publication_date,b.isbn, 
                             p.name,a.name,m_add.full_name FROM books b
                             LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
                             LEFT JOIN authors a ON b.author_id = a.author_id 
                             LEFT JOIN members m_add ON b.added_by = m_add.member_id
                             INNER JOIN collections c ON c.book_id = b.book_id
                             INNER JOIN members m ON c.member_id = m.member_id
-                            where c.member_id = %s and b.tittle LIKE '%%%s%%' """ % (user_id,tittle)
+                            where c.member_id = %s and b.title LIKE '%%%s%%' """ % (user_id,title)
             cursor.execute(search_query + "LIMIT %s,%s" % (start_page,result_per_page))
             result = cursor.fetchall()
             return result
 
     user_id = session["id"]
-    tittle = ''
+    title = ''
 
     if keyword:
-        tittle = keyword
+        title = keyword
         total_collection = session["total_query"]
         total_pages = session["total_pages"]
         on_search = session["on_search"]
 
         global_total_collection = session["global_total_query"]
-        result = create_result(user_id,start_page,result_per_page,tittle)
+        result = create_result(user_id,start_page,result_per_page,title)
         return render_template('collection.html',form=search_form,result=result,total_pages=total_pages, \
-                start_page=start_page,total_query=total_collection,current_page=index,keyword = tittle, \
+                start_page=start_page,total_query=total_collection,current_page=index,keyword = title, \
                 global_total_query=global_total_collection,on_search=on_search)
 
 
-    total_collection = count_collection(user_id,tittle,result_per_page)[0]
+    total_collection = count_collection(user_id,title,result_per_page)[0]
     global_total_collection = total_collection
-    total_pages = count_collection(user_id,tittle,result_per_page)[1]
+    total_pages = count_collection(user_id,title,result_per_page)[1]
     on_search = False
     
-    result = create_result(user_id,start_page,result_per_page,tittle)
+    result = create_result(user_id,start_page,result_per_page,title)
 
-    session["search"] = tittle
+    session["search"] = title
     session["total_query"] = total_collection
     session["total_pages"] = total_pages
     session["on_search"] = on_search 
     session["global_total_query"] = global_total_collection
 
     return render_template('collection.html',form=search_form,result=result,total_pages=total_pages, \
-            start_page=start_page,total_query=total_collection,current_page=index,keyword = tittle, \
+            start_page=start_page,total_query=total_collection,current_page=index,keyword = title, \
             global_total_query=global_total_collection,on_search=on_search)
 
 @site.route('/collection_searching',methods = ['POST'])
 def collection_searching():
     user_id = session["id"]
-    tittle = request.form.get('search')
+    title = request.form.get('search')
     index = request.form.get('page',1)
     result_per_page = 10
     on_search = session['on_search']
 
-    if tittle or on_search:
+    if title or on_search:
         on_search = True
-        if tittle:
+        if title:
             # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
-            tittle = tittle.replace("\'","\\'")
-            tittle = tittle.replace("%","\%")
+            title = title.replace("\'","\\'")
+            title = title.replace("%","\%")
             # best solution i found so far
         else:
-            tittle = session['search']
-        total_collection = count_collection(user_id,tittle,result_per_page)[0]
-        total_pages = count_collection(user_id,tittle,result_per_page)[1]
+            title = session['search']
+        total_collection = count_collection(user_id,title,result_per_page)[0]
+        total_pages = count_collection(user_id,title,result_per_page)[1]
         if total_collection == 0:
             flash("No Data Found")
 
-        session["search"] = tittle
+        session["search"] = title
         session["total_query"] = total_collection
         session["total_pages"] = total_pages
         session["on_search"] = on_search 
 
-        return redirect(url_for('site.collection', keyword = tittle, index = index))
+        return redirect(url_for('site.collection', keyword = title, index = index))
     else:
         return redirect(url_for('site.collection', index = index))
 
@@ -368,15 +368,19 @@ def delete_collection(book_id):
     if request.method == "POST":
 
         with mysql.connection.cursor() as cursor:
-            check_query = "SELECT tittle FROM books WHERE book_id = %s;"
+            check_query = "SELECT title FROM books WHERE book_id = %s;"
             delete_query = "DELETE FROM collections WHERE member_id = %s and book_id = %s;"
             cursor.execute(check_query,(book_id,))
-            book_tittle = cursor.fetchone()
+            book_title = cursor.fetchone()
             cursor.execute(delete_query,(member_id,book_id))
             mysql.connection.commit()
 
-        flash(f"-->{book_tittle[0]}<-- has deleted from your Collections",category='success')
+        flash(f"-->{book_title[0]}<-- has deleted from your Collections",category='success')
         return redirect(url_for('site.collection'))
 
-    # TODO
-    # Design and Create Note Pages
+@site.route('/note',methods = ['GET','POST'])
+def note_page():
+    return render_template('notes.html')
+
+    #TODO
+    # continue mockup of note_page, redesign new database already change, change footer style

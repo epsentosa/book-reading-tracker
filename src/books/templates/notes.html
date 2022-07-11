@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% set active = 'notes' %}
+
+{% block title %}Note Collection{% endblock %}
+
+{% block maincontent %}
+
+
+You Have ...  Notes <br><br>
+  <table class="table table-success table-hover table-bordered border-primary">
+    <tbody>
+      <tr>
+        <td>Note Title ... from Book Title</td>
+        <td scope="col" style="width:80px;">Page ...</td>
+        <td class="text-center" scope="col" style="width:120px;">
+              <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" 
+              data-bs-target="#confirmation_add">Add</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
+              data-bs-target="#detail">Detail</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+{% endblock %}

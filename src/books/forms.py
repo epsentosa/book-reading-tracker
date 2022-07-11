@@ -29,10 +29,10 @@ class SearchForm(FlaskForm):
     submit = SubmitField('Search')
 
 class AddBook(FlaskForm):
-    tittle = TextAreaField(validators=[DataRequired()])
+    title = TextAreaField(validators=[DataRequired()])
     num_pages = IntegerField(validators=[DataRequired()])
     publication_date = DateField(validators=[DataRequired()])
     isbn = StringField()
     publisher = StringField(validators=[DataRequired()])
     author = StringField(validators=[DataRequired()])
-    submit = SubmitField('Add Tittle')
+    submit = SubmitField('Add Title')
