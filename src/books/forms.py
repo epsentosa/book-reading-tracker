@@ -36,3 +36,9 @@ class AddBook(FlaskForm):
     publisher = StringField(validators=[DataRequired()])
     author = StringField(validators=[DataRequired()])
     submit = SubmitField('Add Title')
+
+class AddNote(FlaskForm):
+    title = StringField(validators=[DataRequired()])
+    description = TextAreaField(validators=[DataRequired()])
+    num_page = IntegerField(validators=[DataRequired()])
+    submit = SubmitField('Add Note')

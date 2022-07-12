@@ -146,7 +146,7 @@
 
   <!-- Modal for Add Note Button Confirmation -->
   {% for book_id,title,num_pages,pub_date,isbn,publisher,author,added_by in result %}
-  <div class="modal fade" id="confirmation_add_note{{ book_id }}" tabindex="-1">
+  <div class="modal fade" id="confirmation_add_note{{ book_id }}">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -156,7 +156,7 @@
           Want to add Note to this Book?, Please confirm
         </div>
         <div class="modal-footer">
-          <form action="#" method="POST">
+          <form action="{{ url_for('site.add_note') }}" method="POST">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             <input type="submit" class="btn btn-success" value="Add Note" />
           </form>

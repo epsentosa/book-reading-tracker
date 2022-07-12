@@ -11,6 +11,7 @@ from books.forms import RegistrationForm
 from books.forms import LoginForm
 from books.forms import SearchForm
 from books.forms import AddBook
+from books.forms import AddNote
 from functools import wraps
 from math import ceil
 
@@ -379,8 +380,19 @@ def delete_collection(book_id):
         return redirect(url_for('site.collection'))
 
 @site.route('/note',methods = ['GET','POST'])
+@is_logged_in
 def note_page():
     return render_template('notes.html')
 
+
+@site.route('/note/add',methods = ['GET','POST'])
+@is_logged_in
+def add_note():
+    add_note = AddNote()
+    return render_template('add_note.html',form = add_note)
+
     #TODO
     # continue mockup of note_page, redesign new database already change, change footer style
+    # notes page show only summary notes already added order by favorite and then newest note
+    # on collection book, show total notes only for regarding spesific title
+    # make add notes route
