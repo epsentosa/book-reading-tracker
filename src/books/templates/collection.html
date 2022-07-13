@@ -58,7 +58,7 @@
       </tr>
     </thead>
     <tbody class="table-group-divider">
-        {% for book_id,title,num_pages,pub_date,isbn,publisher,author,added_by in result %}
+        {% for book_id,title,num_pages,pub_date,isbn,publisher,author,added_by,total_notes in result %}
           <tr>
               <td>{{ title }}<br>
                 <div class="collapse" id="detail{{ book_id }}">
@@ -95,7 +95,7 @@
                   </div>
                 </div>
             </td>
-            <td>##tbd</td>
+            <td class="text-center">{{ total_notes }}</td>
             <td class="text-center">
                 <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#confirmation_add_note{{ book_id }}">Add Note</button>
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#detail{{ book_id }}">Detail</button>
@@ -145,7 +145,7 @@
   <!-- End Pagination -->
 
   <!-- Modal for Add Note Button Confirmation -->
-  {% for book_id,title,num_pages,pub_date,isbn,publisher,author,added_by in result %}
+  {% for book_id,title,num_pages,pub_date,isbn,publisher,author,added_by,total_notes in result %}
   <div class="modal fade" id="confirmation_add_note{{ book_id }}">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -156,7 +156,7 @@
           Want to add Note to this Book?, Please confirm
         </div>
         <div class="modal-footer">
-          <form action="{{ url_for('site.add_note') }}" method="POST">
+          <form action="{{ url_for('site.add_note', book_id = book_id) }}" method="POST">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             <input type="submit" class="btn btn-success" value="Add Note" />
           </form>
@@ -168,7 +168,7 @@
 
 
   <!-- Modal for Delete Confirmation -->
-  {% for book_id,title,num_pages,pub_date,isbn,publisher,author,added_by in result %}
+  {% for book_id,title,num_pages,pub_date,isbn,publisher,author,added_by,total_notes in result %}
   <div class="modal fade" id="delete_confirmation{{ book_id }}" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -188,6 +188,5 @@
     </div>
   </div>
   {% endfor %}
-
 
 {% endblock %}

@@ -287,13 +287,15 @@ def collection(index = 1,keyword = None):
     def create_result(user_id,start_page,result_per_page,title):
         with mysql.connection.cursor() as cursor:
             search_query = """ SELECT b.book_id,b.title,b.num_pages,b.publication_date,b.isbn, 
-                            p.name,a.name,m_add.full_name FROM books b
+                            p.name,a.name,m_add.full_name,COUNT(n.book_id) FROM books b
                             LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
                             LEFT JOIN authors a ON b.author_id = a.author_id 
                             LEFT JOIN members m_add ON b.added_by = m_add.member_id
                             INNER JOIN collections c ON c.book_id = b.book_id
                             INNER JOIN members m ON c.member_id = m.member_id
-                            where c.member_id = %s and b.title LIKE '%%%s%%' """ % (user_id,title)
+                            LEFT JOIN notes n ON m.member_id = n.member_id AND b.book_id = n.book_id
+                            where c.member_id = %s and b.title LIKE '%%%s%%' 
+                            GROUP BY book_id """ % (user_id,title)
             cursor.execute(search_query + "LIMIT %s,%s" % (start_page,result_per_page))
             result = cursor.fetchall()
             return result
@@ -318,7 +320,7 @@ def collection(index = 1,keyword = None):
     global_total_collection = total_collection
     total_pages = count_collection(user_id,title,result_per_page)[1]
     on_search = False
-    
+
     result = create_result(user_id,start_page,result_per_page,title)
 
     session["search"] = title
@@ -385,14 +387,35 @@ def note_page():
     return render_template('notes.html')
 
 
-@site.route('/note/add',methods = ['GET','POST'])
+@site.route('/note/add/<int:book_id>',methods = ['GET','POST'])
 @is_logged_in
-def add_note():
+def add_note(book_id):
     add_note = AddNote()
-    return render_template('add_note.html',form = add_note)
+
+    with mysql.connection.cursor() as cursor:
+        title_query = "SELECT title,num_pages FROM books WHERE book_id = %s;"
+        cursor.execute(title_query,(book_id,))
+        result = cursor.fetchone()
+        book_title = result[0]
+        num_pages = result[1]
+
+    if add_note.validate_on_submit():
+        member_id = session['id']
+        num_page = add_note.num_page.data
+        title = add_note.title.data
+        description = add_note.description.data
+        with mysql.connection.cursor() as cursor:
+            addNote_query = """INSERT INTO notes VALUES (DEFAULT,%s,%s,%s,%s,%s);"""
+            cursor.execute(addNote_query,(member_id,book_id,num_page,title,description))
+            mysql.connection.commit()
+
+        flash("New note added",category='success')
+        return redirect(url_for('site.note_page'))
+
+    return render_template('add_note.html',form = add_note, book_title = book_title, \
+            num_pages = num_pages)
 
     #TODO
     # continue mockup of note_page, redesign new database already change, change footer style
     # notes page show only summary notes already added order by favorite and then newest note
     # on collection book, show total notes only for regarding spesific title
-    # make add notes route

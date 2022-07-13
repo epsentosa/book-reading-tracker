@@ -6,6 +6,18 @@
 {% block maincontent %}
 
 
+  {% with message = get_flashed_messages(with_categories=true) %}
+    {% if message %}
+        {% for category,msg in message %}
+          {% if category == 'success' %}
+            <div class="alert alert-success text-center fw-bold py-2" role="alert">{{ msg }}</div>
+          {% else %}
+            <div class="alert alert-danger text-center fw-bold py-2" role="alert">{{ msg }}</div>
+          {% endif %}
+        {% endfor %}
+    {% endif %}
+  {% endwith %}
+
 You Have ...  Notes <br><br>
   <table class="table table-success table-hover table-bordered border-primary">
     <tbody>

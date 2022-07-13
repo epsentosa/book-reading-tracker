@@ -4,7 +4,8 @@
 
 {% block maincontent %}
 
-Add Note for Book Title ... Page ...
+<div class="fst-italic">Add Note for</div>
+<h4 class="fw-bold">{{ book_title }}</h4>
 <form class="h-75 mt-3" method="POST">
     {{ form.hidden_tag() }}
     <div class="row">
@@ -13,8 +14,8 @@ Add Note for Book Title ... Page ...
         <label class="ms-2" for="floatingInput">Note Title</label>
         </div>
         <div class="form-floating mb-3 col-2">
-          {{ form.num_page(class="form-control bg-warning bg-opacity-25 border border-success",id="floatingNum",placeholder="Num Page") }}
-        <label class="ms-2" for="floatingNum">Num Page, Max ...</label>
+          {{ form.num_page(type="text",class="form-control bg-warning bg-opacity-25 border border-success",id="floatingNum",placeholder="Num Page") }}
+          <label class="ms-2" for="floatingNum">Num Page, Max ({{ num_pages }})</label>
         </div>
     </div>
     <div class="form-floating col-12 h-75">
