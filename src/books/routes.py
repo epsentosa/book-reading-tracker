@@ -384,7 +384,17 @@ def delete_collection(book_id):
 @site.route('/note',methods = ['GET','POST'])
 @is_logged_in
 def note_page():
-    return render_template('notes.html')
+    member_id = session['id']
+
+    with mysql.connection.cursor() as cursor:
+        notes_query = """SELECT b.title,n.num_page,n.title,n.description FROM notes n
+                        LEFT JOIN books b ON n.book_id = b.book_id WHERE n.member_id = %s
+                        ORDER BY note_id DESC;"""
+        cursor.execute(notes_query,(member_id,))
+        total_note = cursor.rowcount
+        result = cursor.fetchall()
+
+    return render_template('notes.html',total_note=total_note,result=result)
 
 
 @site.route('/note/add/<int:book_id>',methods = ['GET','POST'])
@@ -416,6 +426,11 @@ def add_note(book_id):
             num_pages = num_pages)
 
     #TODO
-    # continue mockup of note_page, redesign new database already change, change footer style
-    # notes page show only summary notes already added order by favorite and then newest note
-    # on collection book, show total notes only for regarding spesific title
+    # continue mockup of note_page, change footer style
+    # change modal detail in search to collapse
+    # re-route detail action in collection to go to show notes only for spesific book and detail book itself
+    # make works delete note in note_page with modal confirmation
+    # make constrain in show description notes
+    # make notes editable
+    # make some real note on books!!
+    # optional: make delete relation data when delete on book collection
