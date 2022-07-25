@@ -23,7 +23,7 @@
   {% if result %}
   <table class="table table-hover table-borderless">
     <tbody>
-      {% for book_title,num_page,note_title,description in result %}
+      {% for note_id,book_title,num_page,note_title,description in result %}
       <tr>
         <td class="py-3 rounded">
           <div class="container">
@@ -38,7 +38,8 @@
               </div>
               <div class="col-auto text-end align-top p-0">
                   <button type="button" class="btn btn-sm btn-success d-inline p-1">Edit</button>
-                  <button type="button" class="btn btn-sm btn-danger d-inline p-1">Delete</button>
+                  <button type="button" class="btn btn-sm btn-danger d-inline p-1" data-bs-toggle="modal" \
+                   data-bs-target="#delete_confirmation{{ note_id }}">Delete</button>
               </div>
             </div>
           </div>
@@ -51,5 +52,28 @@
     </tbody>
   </table>
   {% endif %}
+
+  <!-- Modal for Delete Confirmation -->
+  {% for note_id,book_title,num_page,note_title,description in result %}
+  <div class="modal fade" id="delete_confirmation{{ note_id }}">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title fw-bold">{{ title }}</h5>
+        </div>
+        <div class="modal-body fst-italic">
+            Please Confirm if you want to delete this Note
+        </div>
+        <div class="modal-footer">
+            <form action="{{ url_for('site.delete_note',note_id = note_id) }}" method="POST">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <input type="submit" class="btn btn-danger" value="Delete" />
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
 
 {% endblock %}

@@ -113,11 +113,12 @@ def search(index = 1, keyword = None):
 
     def create_result(title,start_page,result_per_page):
         with mysql.connection.cursor() as cursor:
-            search_query = """ SELECT b.book_id,b.title,b.num_pages,b.publication_date,b.isbn,p.name,a.name,m.full_name
-                                FROM books b LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
-                                LEFT JOIN authors a ON b.author_id = a.author_id 
-                                LEFT JOIN members m ON b.added_by = m.member_id
-                                WHERE b.title LIKE '%%%s%%'""" % title
+            search_query = """SELECT b.book_id,b.title,b.num_pages,b.publication_date,
+                              b.isbn,p.name,a.name,m.full_name
+                              FROM books b LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
+                              LEFT JOIN authors a ON b.author_id = a.author_id 
+                              LEFT JOIN members m ON b.added_by = m.member_id
+                              WHERE b.title LIKE '%%%s%%'""" % title
             cursor.execute(search_query + "LIMIT %s,%s" % (start_page,result_per_page))
             result = cursor.fetchall()
             return result
@@ -135,12 +136,14 @@ def search(index = 1, keyword = None):
             
         result = create_result(title,start_page,result_per_page)
 
-        return render_template('search.html',form=search_form,form_book=add_book,result=result,keyword = title, \
-                total_query=total_query_result,total_pages=total_pages,start_page=start_page,current_page=index)
+        return render_template('search.html',form=search_form,form_book=add_book,result=result, \
+                keyword = title,total_query=total_query_result,total_pages=total_pages, \
+                start_page=start_page,current_page=index)
 
     session.pop('total_query',None)
     session.pop('total_pages',None)
-    # below session for passing when add book byself and automatically add to collection, to show difference flashed in collection
+    # below session for passing when add book byself and automatically add to collection,
+    # to show difference flashed in collection
     session['add_book_byself'] = False
     return render_template('search.html',form=search_form,form_book=add_book)
 
@@ -221,7 +224,8 @@ def add_book():
 
             publisher_id = query_check_or_add(publisher,'publishers')
             author_id = query_check_or_add(author,'authors')
-            cursor.execute(insert_query,(title,num_pages,publication_date,isbn,publisher_id,author_id,member_id))
+            cursor.execute(insert_query,(title,num_pages,publication_date,isbn,publisher_id,author_id, \
+                           member_id))
             mysql.connection.commit()
 
             # this run the query again to take book_id and passing to add_collection
@@ -344,7 +348,8 @@ def collection_searching():
     if title or on_search:
         on_search = True
         if title:
-            # below to check if there is some input with single quotation or percent, to prevent SQL SYNTAX error 
+            # below to check if there is some input with single quotation or percent,
+            # to prevent SQL SYNTAX error 
             title = title.replace("\'","\\'")
             title = title.replace("%","\%")
             # best solution i found so far
@@ -364,7 +369,7 @@ def collection_searching():
     else:
         return redirect(url_for('site.collection', index = index))
 
-@site.route('/delete_collection/<int:book_id>',methods = ['POST'])
+@site.route('/collection/delete/<int:book_id>',methods = ['POST'])
 def delete_collection(book_id):
 
     member_id = session['id']
@@ -387,7 +392,7 @@ def note_page():
     member_id = session['id']
 
     with mysql.connection.cursor() as cursor:
-        notes_query = """SELECT b.title,n.num_page,n.title,n.description FROM notes n
+        notes_query = """SELECT n.note_id,b.title,n.num_page,n.title,n.description FROM notes n
                         LEFT JOIN books b ON n.book_id = b.book_id WHERE n.member_id = %s
                         ORDER BY note_id DESC;"""
         cursor.execute(notes_query,(member_id,))
@@ -425,11 +430,26 @@ def add_note(book_id):
     return render_template('add_note.html',form = add_note, book_title = book_title, \
             num_pages = num_pages)
 
+@site.route('/note/delete/<int:note_id>',methods = ['POST'])
+def delete_note(note_id):
+
+    member_id = session['id']
+    if request.method == "POST":
+
+        with mysql.connection.cursor() as cursor:
+            check_query = "SELECT title FROM notes WHERE note_id = %s;"
+            delete_query = "DELETE FROM notes WHERE member_id = %s and note_id = %s;"
+            cursor.execute(check_query,(note_id,))
+            note_title = cursor.fetchone()
+            cursor.execute(delete_query,(member_id,note_id))
+            mysql.connection.commit()
+
+        flash(f"-->{note_title[0]}<-- has deleted from your Notes",category='success')
+        return redirect(url_for('site.note_page'))
     #TODO
     # continue mockup of note_page, change footer style
     # change modal detail in search to collapse
     # re-route detail action in collection to go to show notes only for spesific book and detail book itself
-    # make works delete note in note_page with modal confirmation
     # make constrain in show description notes
     # make notes editable
     # make some real note on books!!
