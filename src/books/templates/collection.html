@@ -60,46 +60,14 @@
     <tbody class="table-group-divider">
         {% for book_id,title,num_pages,pub_date,isbn,publisher,author,added_by,total_notes in result %}
           <tr>
-              <td>{{ title }}<br>
-                <div class="collapse" id="detail{{ book_id }}">
-                  <div class="card card-body py-0 bg-secondary bg-opacity-25">
-                    <table class="table table-borderless">
-                        <tbody>
-                            <tr>
-                                <td class="fw-bold" style="width:150px;">Total Pages</td>
-                                <td>: {{ num_pages }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Published Date</td>
-                                <td>: {{ pub_date }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">ISBN</td>
-                                <td>: {{ isbn }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Publisher</td>
-                                <td>: {{ publisher }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Auhor</td>
-                                <td>: {{ author }}</td>
-                            </tr>
-                            {% if added_by != "Eko Putra Sentosa" %}
-                                <tr>
-                                    <td class="fw-bold fw-semibold fst-italic text-primary">Added by user</td>
-                                    <td class="fw-bold fw-semibold fst-italic text-primary">: {{ added_by }}</td>
-                                </tr>
-                            {% endif %}
-                    </table>
-                  </div>
-                </div>
-            </td>
+              <td>{{ title }}</td>
             <td class="text-center">{{ total_notes }}</td>
             <td class="text-center">
-                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#confirmation_add_note{{ book_id }}">Add Note</button>
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#detail{{ book_id }}">Detail</button>
-                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delete_confirmation{{ book_id }}">Delete</button>
+                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" \
+                  data-bs-target="#confirmation_add_note{{ book_id }}">Add Note</button>
+                <a role="button" class="btn btn-secondary btn-sm" href="{{ url_for('site.detail_book',book_id = book_id)}}">Detail</a>
+                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" \
+                  data-bs-target="#delete_confirmation{{ book_id }}">Delete</button>
             </td>
           </tr>
         {% endfor %}

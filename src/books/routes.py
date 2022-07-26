@@ -446,10 +446,36 @@ def delete_note(note_id):
 
         flash(f"-->{note_title[0]}<-- has deleted from your Notes",category='success')
         return redirect(url_for('site.note_page'))
+
+@site.route('/collection/<int:book_id>',methods = ['POST','GET'])
+@is_logged_in
+def detail_book(book_id):
+    book_id = book_id
+    user_id = session['id']
+    path_to_back = request.referrer
+
+    with mysql.connection.cursor() as cursor:
+        search_query = """ SELECT b.book_id,b.title,b.num_pages,b.publication_date,b.isbn, 
+                        p.name,a.name,m_add.full_name,COUNT(n.book_id) FROM books b
+                        LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
+                        LEFT JOIN authors a ON b.author_id = a.author_id 
+                        LEFT JOIN members m_add ON b.added_by = m_add.member_id
+                        INNER JOIN collections c ON c.book_id = b.book_id
+                        INNER JOIN members m ON c.member_id = m.member_id
+                        LEFT JOIN notes n ON m.member_id = n.member_id AND b.book_id = n.book_id
+                        where c.member_id = %s and b.book_id = %s
+                        GROUP BY book_id; """
+        cursor.execute(search_query,(user_id,book_id))
+        result = cursor.fetchall()
+        return render_template('detail_book.html',result = result, path = path_to_back)
+
+
+
     #TODO
     # continue mockup of note_page, change footer style
     # change modal detail in search to collapse
-    # re-route detail action in collection to go to show notes only for spesific book and detail book itself
+    # re-route detail action in collection to go to show notes only for spesific book and detail book itself --> done half 
+        # (need to add view notes to detail collection book spesific note) and make back button prettier
     # make constrain in show description notes
     # make notes editable
     # make some real note on books!!
