@@ -29,15 +29,53 @@
     </thead>
     <tbody class="table-group-divider">
       Found {{ total_query }} Result
-        {% for book in result %}
+        {% for book_id,title,num_pages,pub_date,isbn,publisher,author,added_by in result %}
           <tr>
-            <td>{{ book[1] }}</td>
-            <td>{{ book[2] }}</td>
+            <td>{{ title }}
+              <!-- Collapse for View Detail-->
+              <div class="collapse mt-1" id="detail{{ book_id }}">
+                <div class="card card-body py-0 bg-secondary bg-opacity-25">
+                  <table class="table table-borderless">
+                    <tbody>
+                      <tr>
+                        <td class="fw-bold" style="width:120px;">Total Pages</td>
+                        <td>: {{ num_pages }}</td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold">Published Date</td>
+                        <td>: {{ pub_date }}</td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold">ISBN</td>
+                        <td>: {{ isbn }}</td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold">Publisher</td>
+                        <td>: {{ publisher }}</td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold">Auhor</td>
+                        <td>: {{ author }}</td>
+                      </tr>
+               
+                      {% if added_by != "Eko Putra Sentosa" %}
+                      <tr>
+                          <td class="text-start fw-semibold fst-italic text-primary">Added by user</td>
+                          <td class="text-start fw-semibold fst-italic text-primary">: {{ added_by }}</td>
+                        </td>
+                      </tr>
+                    </tbody>
+                    {% endif %}
+                  </table>
+                </div>
+              </div>
+            </td>
+            <td>{{ num_pages }}</td>
             <td class="text-center">
                   <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" 
-                  data-bs-target="#confirmation_add{{ book[0] }}">Add</button>
-                  <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
-                  data-bs-target="#detail{{ book[0] }}">Detail</button>
+                  data-bs-target="#confirmation_add{{ book_id }}">Add</button>
+                  <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="collapse" 
+                  data-bs-target="#detail{{ book_id }}">Detail</button>
             </td>
           </tr>
         {% endfor %}
@@ -102,50 +140,6 @@
   <!-- End Pagination -->
   
   <!-- Modal Section -->
-
-  <!-- Modal for View Detail-->
-  {% for book_id,title,num_pages,pub_date,isbn,publisher,author,added_by in result %}
-  <div class="modal fade" id="detail{{ book_id }}" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-            <h4 class="modal-title fw-bold">{{ title }}</h4>
-        </div>
-        <div class="modal-body">
-            <table class="table table-borderless">
-                <tbody>
-                    <tr>
-                        <td class="fw-bold" style="width:120px;">Total Pages</td>
-                        <td>: {{ num_pages }}</td>
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">Published Date</td>
-                        <td>: {{ pub_date }}</td>
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">ISBN</td>
-                        <td>: {{ isbn }}</td>
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">Publisher</td>
-                        <td>: {{ publisher }}</td>
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">Auhor</td>
-                        <td>: {{ author }}</td>
-                    </tr>
-            </table>
-        </div>
-        {% if added_by != "Eko Putra Sentosa" %}
-            <div class="container text-start fw-semibold fst-italic text-secondary">Added by user: {{ added_by }}</div>
-        {% endif %}
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
- {% endfor %}
 
   <!-- Modal for adding new book title -->
   <div class="modal fade" id="add" tabindex="-1">

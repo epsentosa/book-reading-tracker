@@ -89,10 +89,10 @@ def login_page():
                 if is_password:
                     cursor.execute(name,(email,))
                     user = cursor.fetchone()
-                    user_id = user[0]
+                    member_id = user[0]
                     name = user[1]
                     session['user'] = name
-                    session['id'] = user_id
+                    session['id'] = member_id
                     return redirect(url_for('site.home_page'))
                 flash("Wrong Password, try again")
 
@@ -267,12 +267,12 @@ def add_collection(book_id):
 """
 function for collection use
 """
-def count_collection(user_id,title,result_per_page):
+def count_collection(member_id,title,result_per_page):
     with mysql.connection.cursor() as cursor:
         collection_query = """ SELECT b.title,b.num_pages FROM books b
                         INNER JOIN collections c ON c.book_id = b.book_id
                         INNER JOIN members m ON c.member_id = m.member_id
-                        where c.member_id = %s and b.title LIKE '%%%s%%' """ % (user_id,title)
+                        where c.member_id = %s and b.title LIKE '%%%s%%' """ % (member_id,title)
         cursor.execute(collection_query)
         total_collection = cursor.rowcount
         total_pages = ceil(total_collection/result_per_page)
@@ -288,7 +288,7 @@ def collection(index = 1,keyword = None):
     start_page = (index * 10) - 10
     result_per_page = 10
 
-    def create_result(user_id,start_page,result_per_page,title):
+    def create_result(member_id,start_page,result_per_page,title):
         with mysql.connection.cursor() as cursor:
             search_query = """ SELECT b.book_id,b.title,b.num_pages,b.publication_date,b.isbn, 
                             p.name,a.name,m_add.full_name,COUNT(n.book_id) FROM books b
@@ -299,12 +299,12 @@ def collection(index = 1,keyword = None):
                             INNER JOIN members m ON c.member_id = m.member_id
                             LEFT JOIN notes n ON m.member_id = n.member_id AND b.book_id = n.book_id
                             where c.member_id = %s and b.title LIKE '%%%s%%' 
-                            GROUP BY book_id """ % (user_id,title)
+                            GROUP BY book_id """ % (member_id,title)
             cursor.execute(search_query + "LIMIT %s,%s" % (start_page,result_per_page))
             result = cursor.fetchall()
             return result
 
-    user_id = session["id"]
+    member_id = session["id"]
     title = ''
 
     if keyword:
@@ -314,18 +314,18 @@ def collection(index = 1,keyword = None):
         on_search = session["on_search"]
 
         global_total_collection = session["global_total_query"]
-        result = create_result(user_id,start_page,result_per_page,title)
+        result = create_result(member_id,start_page,result_per_page,title)
         return render_template('collection.html',form=search_form,result=result,total_pages=total_pages, \
                 start_page=start_page,total_query=total_collection,current_page=index,keyword = title, \
                 global_total_query=global_total_collection,on_search=on_search)
 
 
-    total_collection = count_collection(user_id,title,result_per_page)[0]
+    total_collection = count_collection(member_id,title,result_per_page)[0]
     global_total_collection = total_collection
-    total_pages = count_collection(user_id,title,result_per_page)[1]
+    total_pages = count_collection(member_id,title,result_per_page)[1]
     on_search = False
 
-    result = create_result(user_id,start_page,result_per_page,title)
+    result = create_result(member_id,start_page,result_per_page,title)
 
     session["search"] = title
     session["total_query"] = total_collection
@@ -339,7 +339,7 @@ def collection(index = 1,keyword = None):
 
 @site.route('/collection_searching',methods = ['POST'])
 def collection_searching():
-    user_id = session["id"]
+    member_id = session["id"]
     title = request.form.get('search')
     index = request.form.get('page',1)
     result_per_page = 10
@@ -355,8 +355,8 @@ def collection_searching():
             # best solution i found so far
         else:
             title = session['search']
-        total_collection = count_collection(user_id,title,result_per_page)[0]
-        total_pages = count_collection(user_id,title,result_per_page)[1]
+        total_collection = count_collection(member_id,title,result_per_page)[0]
+        total_pages = count_collection(member_id,title,result_per_page)[1]
         if total_collection == 0:
             flash("No Data Found")
 
@@ -376,11 +376,13 @@ def delete_collection(book_id):
     if request.method == "POST":
 
         with mysql.connection.cursor() as cursor:
-            check_query = "SELECT title FROM books WHERE book_id = %s;"
-            delete_query = "DELETE FROM collections WHERE member_id = %s and book_id = %s;"
-            cursor.execute(check_query,(book_id,))
+            title_query = "SELECT title FROM books WHERE book_id = %s;"
+            delete_collection_query = "DELETE FROM collections WHERE member_id = %s and book_id = %s;"
+            delete_note_query = "DELETE FROM notes WHERE member_id = %s and book_id = %s;"
+            cursor.execute(title_query,(book_id,))
             book_title = cursor.fetchone()
-            cursor.execute(delete_query,(member_id,book_id))
+            cursor.execute(delete_collection_query,(member_id,book_id))
+            cursor.execute(delete_note_query,(member_id,book_id))
             mysql.connection.commit()
 
         flash(f"-->{book_title[0]}<-- has deleted from your Collections",category='success')
@@ -451,11 +453,11 @@ def delete_note(note_id):
 @is_logged_in
 def detail_book(book_id):
     book_id = book_id
-    user_id = session['id']
+    member_id = session['id']
     path_to_back = request.referrer
 
     with mysql.connection.cursor() as cursor:
-        search_query = """ SELECT b.book_id,b.title,b.num_pages,b.publication_date,b.isbn, 
+        book_query = """ SELECT b.book_id,b.title,b.num_pages,b.publication_date,b.isbn, 
                         p.name,a.name,m_add.full_name,COUNT(n.book_id) FROM books b
                         LEFT JOIN publishers p ON b.publisher_id = p.publisher_id 
                         LEFT JOIN authors a ON b.author_id = a.author_id 
@@ -465,18 +467,21 @@ def detail_book(book_id):
                         LEFT JOIN notes n ON m.member_id = n.member_id AND b.book_id = n.book_id
                         where c.member_id = %s and b.book_id = %s
                         GROUP BY book_id; """
-        cursor.execute(search_query,(user_id,book_id))
-        result = cursor.fetchall()
-        return render_template('detail_book.html',result = result, path = path_to_back)
+        notes_query = """SELECT n.note_id,b.title,n.num_page,n.title,n.description FROM notes n
+                        LEFT JOIN books b ON n.book_id = b.book_id WHERE n.member_id = %s
+                        and n.book_id = %s ORDER BY note_id DESC;"""
 
+        cursor.execute(book_query,(member_id,book_id))
+        book_result = cursor.fetchall()
 
+        cursor.execute(notes_query,(member_id,book_id))
+        total_note = cursor.rowcount
+        note_result = cursor.fetchall()
+        return render_template('detail_book.html',book_result = book_result, note_result = note_result, \
+                total_note = total_note, path = path_to_back)
 
     #TODO
     # continue mockup of note_page, change footer style
-    # change modal detail in search to collapse
-    # re-route detail action in collection to go to show notes only for spesific book and detail book itself --> done half 
-        # (need to add view notes to detail collection book spesific note) and make back button prettier
     # make constrain in show description notes
     # make notes editable
     # make some real note on books!!
-    # optional: make delete relation data when delete on book collection
