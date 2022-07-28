@@ -8,7 +8,8 @@
   {% for book_id,title,num_pages,pub_date,isbn,publisher,author,added_by,total_notes in book_result %}
     <div class="container">
       <!-- if user try to reload through enter the link -->
-      <a role="button" class="btn btn-danger btn-sm" href="{{ url_for('site.collection') if path == None else path }}">Back</a>
+      <a role="button" class="btn btn-danger btn-sm" href="{{ url_for('site.collection') 
+          if path == None else path }}">Back</a>
       <h3>Detail Book: <span class="fw-semibold fst-italic">{{ title }}</span></h3>
         <div class="card card-body py-0 bg-secondary bg-opacity-25">
           <table class="table table-borderless">

@@ -37,13 +37,18 @@
                   {{ form.password(class="form-control form-control-md",placeholder="Password") }}
                 </div>
                 <div class="form-outline mb-4">
-                  {{ form.repeat_password(class="form-control form-control-md",placeholder="Repeat Your Password") }}
+                  {{ form.repeat_password(class="form-control form-control-md",
+                  placeholder="Repeat Your Password") }}
                 </div>
                 <div class="d-flex justify-content-center">
                   {{ form.submit(class="btn btn-warning btn-block btn-md fw-bold") }}
                 </div>
 
-                <p class="text-center text-muted mt-3 mb-0">Have already an account? <a href="{{ url_for('site.login_page') }}" class="fw-bold text-body"><u>Login here</u></a></p>
+                <p class="text-center text-muted mt-3 mb-0">Have already an account? 
+                    <a href="{{ url_for('site.login_page') }}" class="fw-bold text-body">
+                        <u>Login here</u>
+                    </a>
+                </p>
               </form>
 
             </div>

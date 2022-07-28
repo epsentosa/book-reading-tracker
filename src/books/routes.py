@@ -16,6 +16,8 @@ from functools import wraps
 from math import ceil
 
 
+site = Blueprint('site',__name__,static_folder="static")
+
 def is_logged_in(fn):
     @wraps(fn)
     def wrapper(*args,**kwargs):
@@ -25,15 +27,17 @@ def is_logged_in(fn):
         return redirect(url_for('site.login_page'))
     return wrapper
 
-
-site = Blueprint('site',__name__,static_folder="static")
-
 @site.route('/')
 @site.route('/home',methods = ['POST','GET'])
 @is_logged_in
 def home_page():
-    msg = f"Succesfully Login for user {session['user']}"
-    return render_template("home.html",msg=msg)
+    with mysql.connection.cursor() as cursor:
+        recommendation_query = """SELECT b.book_id,b.title,a.name FROM books b
+                                LEFT JOIN authors a ON b.author_id = a.author_id
+                                ORDER BY RAND() LIMIT 3"""
+        cursor.execute(recommendation_query)
+        result = cursor.fetchall()
+    return render_template("home.html",result = result)
 
 @site.route('/register',methods = ['POST','GET'])
 def register_page():
@@ -89,10 +93,10 @@ def login_page():
                 if is_password:
                     cursor.execute(name,(email,))
                     user = cursor.fetchone()
-                    member_id = user[0]
-                    name = user[1]
+                    member_id,name = user[0],user[1]
                     session['user'] = name
                     session['id'] = member_id
+                    flash(f"Login Successful, Welcome {name}",category='success')
                     return redirect(url_for('site.home_page'))
                 flash("Wrong Password, try again")
 
@@ -484,4 +488,4 @@ def detail_book(book_id):
     # continue mockup of note_page, change footer style
     # make constrain in show description notes
     # make notes editable
-    # make some real note on books!!
+    # make some real note on books!! and create Markdown File !! (this week must done)

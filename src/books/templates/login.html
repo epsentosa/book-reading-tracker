@@ -51,7 +51,11 @@
                   {{ form.submit(class="btn btn-warning btn-block btn-md fw-bold",placeholder="Login") }}
                 </div>
                 <div class="text-center">
-                    <p class="text-center text-muted mt-3 mb-0">Not a member? <a href="{{ url_for('site.register_page') }}" class="fw-bold text-body"><u>Register</u></a></p>
+                    <p class="text-center text-muted mt-3 mb-0">Not a member? 
+                        <a href="{{ url_for('site.register_page') }}" class="fw-bold text-body">
+                            <u>Register</u>
+                        </a>
+                    </p>
                 </div>
               </form>
 

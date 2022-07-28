@@ -10,16 +10,19 @@
     {{ form.hidden_tag() }}
     <div class="row">
         <div class="form-floating mb-3 col-4">
-          {{ form.title(class="form-control bg-warning bg-opacity-25 border border-success",id="floatingInput",placeholder="Note Title") }}
+          {{ form.title(class="form-control bg-warning bg-opacity-25 border border-success",
+          id="floatingInput",placeholder="Note Title") }}
         <label class="ms-2" for="floatingInput">Note Title</label>
         </div>
         <div class="form-floating mb-3 col-2">
-          {{ form.num_page(type="text",class="form-control bg-warning bg-opacity-25 border border-success",id="floatingNum",placeholder="Num Page") }}
+          {{ form.num_page(type="text",class="form-control bg-warning bg-opacity-25 border border-success",
+          id="floatingNum",placeholder="Num Page") }}
           <label class="ms-2" for="floatingNum">Num Page, Max ({{ num_pages }})</label>
         </div>
     </div>
     <div class="form-floating col-12 h-75">
-      {{ form.description(class="form-control h-100 bg-warning bg-opacity-25 border border-success",id="floatingDesc",placeholder="Description") }}
+      {{ form.description(class="form-control h-100 bg-warning bg-opacity-25 border border-success",
+      id="floatingDesc",placeholder="Description") }}
     <label for="floatingDesc">Description</label>
     </div>
     <div class="d-flex justify-content-end mt-2">

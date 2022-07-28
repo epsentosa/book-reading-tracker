@@ -3,6 +3,84 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block maincontent %}
-  <h1>{{ msg }}</h1>
-  <p>You Still Have No Data Collection Yet</p>
+
+  {% with message = get_flashed_messages(with_categories=true) %}
+    {% if message %}
+        <div class="alert alert-success text-center fw-bold py-2" role="alert">
+            <h4>{{ message[0][1] }}</h4>
+        </div>
+    {% endif %}
+  {% endwith %}
+    
+  <div class="row bg-info mx-1 mb-2 bg-success bg-gradient text-dark">
+      <div class="col mt-0 text-center py-3 fs-4 fw-bolder bg-info bg-opacity-75">
+          Our recommendation book to add to your collection<br>
+      </div>
+  </div>
+
+  {% set book_id1 = result[0][0] %}
+  {% set book_id2 = result[1][0] %}
+  {% set book_id3 = result[2][0] %}
+  {% set title1 = result[0][1] %}
+  {% set title2 = result[1][1] %}
+  {% set title3 = result[2][1] %}
+  {% set author1 = result[0][2] %}
+  {% set author2 = result[1][2] %}
+  {% set author3 = result[2][2] %}
+
+  <div class="row">
+   <div class="col-sm-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title fw-bold">{{ title1 }}</h5>
+          <p class="card-text fst-italic">Author by {{ author1 }}</p>
+          <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" 
+          data-bs-target="#confirmation_add{{ book_id1 }}">Add</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title fw-bold">{{ title2 }}</h5>
+          <p class="card-text fst-italic">Author by {{ author2 }}</p>
+          <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" 
+          data-bs-target="#confirmation_add{{ book_id2 }}">Add</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title fw-bold">{{ title3 }}</h5>
+          <p class="card-text fst-italic">Author by {{ author3 }}</p>
+          <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" 
+          data-bs-target="#confirmation_add{{ book_id3 }}">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Add Button Confirmation -->
+  {% for book_id,title,author in result %}
+  <div class="modal fade" id="confirmation_add{{ book_id }}" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title fw-bold">{{ title }}</h5>
+        </div>
+        <div class="modal-body fst-italic">
+          Please confirm if you want to add this book.
+        </div>
+        <div class="modal-footer">
+          <form action="{{ url_for('site.add_collection',book_id = book_id) }}" method="POST">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <input type="submit" class="btn btn-success" value="Add to Collection" />
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
 {% endblock %}

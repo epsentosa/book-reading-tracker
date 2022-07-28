@@ -11,7 +11,8 @@
       <div class="container-sm">
         <form method="POST" class="d-flex" role="search" action="{{ url_for('site.searching') }}">
           {{ form.hidden_tag() }}
-          {{ form.search(class="form-control me-2",placeholder="Search Book Title", value=keyword if keyword else "") }}
+          {{ form.search(class="form-control me-2",placeholder="Search Book Title",
+          value=keyword if keyword else "") }}
           {{ form.submit(class="btn btn-outline-success",placeholder="Search")}}
         </form>
       </div>
@@ -93,7 +94,8 @@
           {% else %}
             <div class="alert alert-danger text-center fw-bold py-2" role="alert">{{ msg }}</div>
             <div class="text-center fw-bold" role="alert">Want to add by yourself? 
-              <button type="button" class="btn btn-sm btn-success fst-italic" data-bs-toggle="modal" data-bs-target="#add">
+              <button type="button" class="btn btn-sm btn-success fst-italic" data-bs-toggle="modal" \
+                  data-bs-target="#add">
                 click here
               </button>
             </div>
@@ -108,7 +110,8 @@
       <li class="col-auto page-item pe-0">
         <form method="POST" class="inline" action="{{ url_for('site.searching') }}">
           <input type="hidden" name="page" value="{{ page_active - 1 }}">
-          <button type="submit" class="btn btn-sm btn-outline-primary {{ 'disabled' if current_page == 1 else '' }}">
+          <button type="submit" class="btn btn-sm btn-outline-primary \
+              {{ 'disabled' if current_page == 1 else '' }}">
             << Prev
           </button>
         </form>
@@ -116,7 +119,8 @@
       <li class="col-auto page-item">
         <form method="POST" class="inline" action="{{ url_for('site.searching') }}">
             <input type="hidden" name="page" value="{{ page_active + 1 }}">
-          <button type="submit" class="btn btn-sm btn-outline-primary {{ 'disabled' if current_page == total_pages else '' }}">
+          <button type="submit" class="btn btn-sm btn-outline-primary \
+              {{ 'disabled' if current_page == total_pages else '' }}">
               Next >>
           </button>
         </form>
@@ -125,8 +129,10 @@
           Page 
       </li>
       <li class="col-auto page-item">
-          <form class="row row-cols-lg-auto g-3 align-items-center" method="POST" action="{{ url_for('site.searching') }}">
-            <input type="text" name="page" class="form-control form-control-sm" value="{{ page_active }}" style="width:40px;">
+          <form class="row row-cols-lg-auto g-3 align-items-center" method="POST" \
+              action="{{ url_for('site.searching') }}">
+            <input type="text" name="page" class="form-control form-control-sm" \
+                value="{{ page_active }}" style="width:40px;">
       </li>
       <li class="col-auto page-item mx-0 px-0">
           of {{ total_pages }} Total Pages
