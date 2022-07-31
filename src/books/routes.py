@@ -436,6 +436,35 @@ def add_note(book_id):
     return render_template('add_note.html',form = add_note, book_title = book_title, \
             num_pages = num_pages)
 
+@site.route('/note/edit/<int:note_id>',methods = ['GET','POST'])
+@is_logged_in
+def edit_note(note_id):
+    # bugs
+    # shows quetion mark in link url, but all function works well
+    edit_note = AddNote()
+
+    if request.method == "GET":
+        with mysql.connection.cursor() as cursor:
+            note_query = "SELECT title,num_page,description FROM notes WHERE note_id = %s;"
+            cursor.execute(note_query,(note_id,))
+            result = cursor.fetchone()
+            edit_note.description.data = result[2]
+
+    if edit_note.validate_on_submit():
+        title = edit_note.title.data
+        num_page = edit_note.num_page.data
+        description = edit_note.description.data
+        with mysql.connection.cursor() as cursor:
+            edit_query = """ UPDATE notes SET title = %s, num_page = %s, description = %s
+                             WHERE note_id = %s; """
+            cursor.execute(edit_query,(title,num_page,description,note_id))
+            mysql.connection.commit()
+
+        flash("Note edited",category='success')
+        return redirect(url_for('site.note_page'))
+
+    return render_template('edit_note.html',form = edit_note, result = result)
+
 @site.route('/note/delete/<int:note_id>',methods = ['POST'])
 def delete_note(note_id):
 
@@ -487,5 +516,4 @@ def detail_book(book_id):
     #TODO
     # continue mockup of note_page, change footer style
     # make constrain in show description notes
-    # make notes editable
     # make some real note on books!! and create Markdown File !! (this week must done)

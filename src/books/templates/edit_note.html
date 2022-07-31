@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Notes{% endblock %}
+
+{% block maincontent %}
+
+{% set title = result[0] %}
+{% set num_page = result[1] %}
+
+<div class="fst-italic">Edit Note for</div>
+<h4 class="fw-bold">{{ title }}</h4>
+<form class="h-75 mt-3" method="POST">
+    {{ form.hidden_tag() }}
+    <div class="row">
+        <div class="form-floating mb-3 col-4">
+          {{ form.title(class="form-control bg-warning bg-opacity-25 border border-success",
+          id="floatingInput",placeholder="Note Title",value=title) }}
+        <label class="ms-2" for="floatingInput">Note Title</label>
+        </div>
+        <div class="form-floating mb-3 col-2">
+          {{ form.num_page(type="text",class="form-control bg-warning bg-opacity-25 border border-success",
+          id="floatingNum",placeholder="Num Page",value=num_page) }}
+          <label class="ms-2" for="floatingNum">Num Page, Max ({{ num_page }})</label>
+        </div>
+    </div>
+    <div class="form-floating col-12 h-75">
+      {{ form.description(class="form-control h-100 bg-warning bg-opacity-25 border border-success",
+      id="floatingDesc",placeholder="Description") }}
+    <label for="floatingDesc">Description</label>
+    </div>
+    <div class="d-flex justify-content-end mt-2">
+      {{ form.submit(class="btn btn-success btn-block btn-md fw-bold",value="Save Changes") }}
+    </div>
+</form>
+
+{% endblock %}

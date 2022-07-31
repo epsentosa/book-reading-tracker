@@ -37,7 +37,8 @@
                   <span class="fw-bold">{{ num_page }}</span>
               </div>
               <div class="col-auto text-end align-top p-0">
-                  <button type="button" class="btn btn-sm btn-success d-inline p-1">Edit</button>
+                  <button type="button" class="btn btn-sm btn-success d-inline p-1" data-bs-toggle="modal" \
+                   data-bs-target="#edit_confirmation{{ note_id }}">Edit</button>
                   <button type="button" class="btn btn-sm btn-danger d-inline p-1" data-bs-toggle="modal" \
                    data-bs-target="#delete_confirmation{{ note_id }}">Delete</button>
               </div>
@@ -52,6 +53,28 @@
     </tbody>
   </table>
   {% endif %}
+
+  <!-- Modal for Edit Confirmation -->
+  {% for note_id,book_title,num_page,note_title,description in result %}
+  <div class="modal fade" id="edit_confirmation{{ note_id }}">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title fw-bold">{{ note_title }}</h5>
+        </div>
+        <div class="modal-body fst-italic">
+            Please Confirm if you want to edit this Note
+        </div>
+        <div class="modal-footer">
+          <form action="{{ url_for('site.edit_note',note_id = note_id) }}" method="GET">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <input type="submit" class="btn btn-success" value="Edit" />
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
 
   <!-- Modal for Delete Confirmation -->
   {% for note_id,book_title,num_page,note_title,description in result %}
