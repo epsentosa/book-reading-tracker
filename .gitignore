@@ -7,3 +7,10 @@ src/books/__pycache__
 
 #Vscode
 .vscode
+
+#mysql data
+mysql/#innodb_temp
+mysql/performance_schema
+mysql/binlog.*
+mysql/ib_log*
+mysql/undo_*
