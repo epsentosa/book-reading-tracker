@@ -19,7 +19,7 @@ services:
       MYSQL_USER: eps
       MYSQL_PASSWORD: brew
     volumes:
-      - $PWD/mysql:/var/lib/mysql
+      - $PWD/mysql-data:/var/lib/mysql
     networks:
       - local-web
 

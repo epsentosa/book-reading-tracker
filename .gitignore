@@ -9,4 +9,4 @@ src/books/__pycache__
 .vscode
 
 #mysql data
-mysql
+mysql-data
