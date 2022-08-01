@@ -9,10 +9,5 @@ src/books/__pycache__
 .vscode
 
 #mysql data
-mysql/#innodb_temp
-mysql/performance_schema
-mysql/binlog.*
-mysql/ib_log*
-mysql/undo_*
-mysql/ib_buffer_pool
-mysql/ibtmp*
+mysql/*
+!mysql/track_books
