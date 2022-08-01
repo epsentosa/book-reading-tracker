@@ -19,9 +19,7 @@ services:
       MYSQL_USER: eps
       MYSQL_PASSWORD: brew
     volumes:
-      - type: volume
-        source: sql-data
-        target: /var/lib/mysql
+      - $PWD/mysql:/var/lib/mysql
     networks:
       - local-web
 
@@ -29,7 +27,7 @@ networks:
   local-web:
     driver: bridge
 
-volumes:
-  sql-data:
-    external: true
-    name: sql-data
+# volumes:
+#   sql-data:
+#     external: true
+#     name: sql-data

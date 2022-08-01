@@ -398,7 +398,7 @@ def note_page():
     member_id = session['id']
 
     with mysql.connection.cursor() as cursor:
-        notes_query = """SELECT n.note_id,b.title,n.num_page,n.title,n.description FROM notes n
+        notes_query = """SELECT n.note_id,b.book_id,b.title,n.num_page,n.title,n.description FROM notes n
                         LEFT JOIN books b ON n.book_id = b.book_id WHERE n.member_id = %s
                         ORDER BY note_id DESC;"""
         cursor.execute(notes_query,(member_id,))
@@ -436,19 +436,22 @@ def add_note(book_id):
     return render_template('add_note.html',form = add_note, book_title = book_title, \
             num_pages = num_pages)
 
-@site.route('/note/edit/<int:note_id>',methods = ['GET','POST'])
+@site.route('/note/edit',methods = ['GET','POST'])
 @is_logged_in
-def edit_note(note_id):
-    # bugs
-    # shows quetion mark in link url, but all function works well
+def edit_note():
+    note_id = request.args.get('note_id')
+    book_id = request.args.get('book_id')
     edit_note = AddNote()
 
     if request.method == "GET":
         with mysql.connection.cursor() as cursor:
             note_query = "SELECT title,num_page,description FROM notes WHERE note_id = %s;"
+            book_query = "SELECT num_pages FROM books WHERE book_id = %s;"
             cursor.execute(note_query,(note_id,))
             result = cursor.fetchone()
             edit_note.description.data = result[2]
+            cursor.execute(book_query,(book_id,))
+            num_pages = cursor.fetchone()[0]
 
     if edit_note.validate_on_submit():
         title = edit_note.title.data
@@ -463,7 +466,7 @@ def edit_note(note_id):
         flash("Note edited",category='success')
         return redirect(url_for('site.note_page'))
 
-    return render_template('edit_note.html',form = edit_note, result = result)
+    return render_template('edit_note.html',form=edit_note,result=result,num_pages=num_pages)
 
 @site.route('/note/delete/<int:note_id>',methods = ['POST'])
 def delete_note(note_id):
@@ -500,7 +503,7 @@ def detail_book(book_id):
                         LEFT JOIN notes n ON m.member_id = n.member_id AND b.book_id = n.book_id
                         where c.member_id = %s and b.book_id = %s
                         GROUP BY book_id; """
-        notes_query = """SELECT n.note_id,b.title,n.num_page,n.title,n.description FROM notes n
+        notes_query = """SELECT n.note_id,n.book_id,b.title,n.num_page,n.title,n.description FROM notes n
                         LEFT JOIN books b ON n.book_id = b.book_id WHERE n.member_id = %s
                         and n.book_id = %s ORDER BY note_id DESC;"""
 
