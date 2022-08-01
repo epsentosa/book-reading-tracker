@@ -14,3 +14,5 @@ mysql/performance_schema
 mysql/binlog.*
 mysql/ib_log*
 mysql/undo_*
+mysql/ib_buffer_pool
+mysql/ibtmp*
