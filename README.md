@@ -28,7 +28,7 @@ book-reading-tracker
 
 ### Steps to get working
 Git clone this repo and and clone also mysql-data from github.com/ekoputrasentosa/mysql-data inside book-reading-tracker folder
-* **Production 'like' server**
+* **Production 'like' server**<br>
 Only need docker-compose in host, and to run just simply do
   ```bash
   docker-compose up --build -d
