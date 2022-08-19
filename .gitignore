@@ -4,6 +4,7 @@ venv
 #Pycache
 src/__pycache__
 src/books/__pycache__
+src/books/api/__pycache__
 
 #Vscode
 .vscode
