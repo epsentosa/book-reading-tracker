@@ -7,11 +7,11 @@ from flask import flash
 from flask import session
 from books import bcrypt
 from books import mysql
-from books.forms import RegistrationForm
-from books.forms import LoginForm
-from books.forms import SearchForm
-from books.forms import AddBook
-from books.forms import AddNote
+from books.site.forms import RegistrationForm
+from books.site.forms import LoginForm
+from books.site.forms import SearchForm
+from books.site.forms import AddBook
+from books.site.forms import AddNote
 from functools import wraps
 from math import ceil
 

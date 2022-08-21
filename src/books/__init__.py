@@ -6,7 +6,7 @@ app = Flask(__name__)
 bcrypt = Bcrypt()
 mysql = MySQL()
 
-from books.routes import site
+from books.site import site
 from books.api import api
 
 def create_app(host,user,password,db,secretkey):
@@ -18,8 +18,8 @@ def create_app(host,user,password,db,secretkey):
     
     mysql.init_app(app)
     bcrypt.init_app(app)
-    api.init_app(app)
 
     app.register_blueprint(site)
+    app.register_blueprint(api)
 
     return app
